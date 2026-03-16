@@ -778,6 +778,69 @@ h3 {
     background-image: var(--github-icon-image);
 }
 
+.social-auth-body {
+    min-height: 100vh;
+}
+
+.social-auth-layout {
+    width: min(100%, 500px);
+}
+
+.social-auth-panel {
+    gap: 22px;
+}
+
+.social-auth-header {
+    gap: 14px;
+}
+
+.social-auth-header p {
+    margin: 0;
+    color: rgba(33, 48, 75, 0.82);
+    line-height: 1.65;
+}
+
+.social-auth-badge {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(32, 47, 84, 0.14);
+}
+
+.social-auth-form,
+.social-auth-actions {
+    width: 100%;
+    max-width: 380px;
+}
+
+.social-auth-submit {
+    min-height: 50px;
+}
+
+.social-auth-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.social-auth-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(177, 188, 214, 0.38);
+    background: rgba(255, 255, 255, 0.58);
+    color: var(--ink);
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+}
+
+.social-auth-link:hover {
+    background: rgba(255, 255, 255, 0.72);
+}
+
 @media (max-width: 1240px) {
     .content-grid.two-up,
     .summary-grid {
