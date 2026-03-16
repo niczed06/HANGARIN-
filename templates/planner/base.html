@@ -100,14 +100,17 @@
                         <span class="user-badge">{{ toolbar_initial }}</span>
                         <strong>{{ toolbar_user }}</strong>
                     </div>
-                    <a class="toolbar-btn" href="{{ secondary_action_url }}">
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <path d="M10 17l5-5-5-5"></path>
-                            <path d="M15 12H5"></path>
-                            <path d="M19 5v14"></path>
-                        </svg>
-                        <span>{{ secondary_action_label }}</span>
-                    </a>
+                    <form action="{{ secondary_action_url }}" method="post" class="toolbar-form">
+                        {% csrf_token %}
+                        <button type="submit" class="toolbar-btn">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M10 17l5-5-5-5"></path>
+                                <path d="M15 12H5"></path>
+                                <path d="M19 5v14"></path>
+                            </svg>
+                            <span>{{ secondary_action_label }}</span>
+                        </button>
+                    </form>
                 </div>
             </header>
 

@@ -1,10 +1,12 @@
 from datetime import timedelta
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
+from django.contrib.auth.views import LoginView
 
 from .models import Category, Note, Priority, SubTask, Task
 
@@ -59,15 +61,27 @@ def get_task_queryset():
     )
 
 
-class PlannerBaseView(TemplateView):
+def get_display_name(user):
+    full_name = user.get_full_name().strip()
+    return full_name or user.get_username()
+
+
+class PlannerLoginView(LoginView):
+    template_name = "planner/login.html"
+    redirect_authenticated_user = True
+
+
+class PlannerBaseView(LoginRequiredMixin, TemplateView):
     active_page = ""
     page_title = ""
     primary_action_label = "New Task"
     primary_action_url = reverse_lazy("admin:planner_task_add")
+    login_url = reverse_lazy("planner:login")
 
     def build_shell_context(self):
         today = timezone.localdate()
-        username = self.request.user.username if self.request.user.is_authenticated else "richo"
+        display_name = get_display_name(self.request.user)
+        first_name = self.request.user.first_name.strip() if self.request.user.first_name else ""
         return {
             "active_page": self.active_page,
             "page_title": self.page_title,
@@ -75,12 +89,13 @@ class PlannerBaseView(TemplateView):
             "search_query": get_search_query(self.request),
             "toolbar_date": today.strftime("%b %d, %Y"),
             "toolbar_date_long": format_long_date(today),
-            "toolbar_user": username,
-            "toolbar_initial": username[:1].upper(),
+            "toolbar_user": display_name,
+            "toolbar_initial": display_name[:1].upper(),
             "primary_action_label": self.primary_action_label,
             "primary_action_url": self.primary_action_url,
             "secondary_action_label": "Log Out",
-            "secondary_action_url": reverse_lazy("admin:logout"),
+            "secondary_action_url": reverse_lazy("planner:logout"),
+            "welcome_name": first_name or display_name,
         }
 
     def get_context_data(self, **kwargs):
@@ -153,7 +168,6 @@ class DashboardView(PlannerBaseView):
 
         context.update(
             {
-                "welcome_name": context["toolbar_user"],
                 "hero_metrics": hero_metrics,
                 "overview_cards": overview_cards,
                 "status_rows": status_rows,

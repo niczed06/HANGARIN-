@@ -50,6 +50,10 @@ input {
     font: inherit;
 }
 
+button {
+    cursor: pointer;
+}
+
 p,
 h1,
 h2,
@@ -183,6 +187,10 @@ h3 {
     flex-wrap: wrap;
 }
 
+.toolbar-form {
+    margin: 0;
+}
+
 .toolbar-btn,
 .toolbar-chip {
     display: inline-flex;
@@ -196,6 +204,10 @@ h3 {
     color: var(--ink);
     font-size: 0.78rem;
     font-weight: 700;
+}
+
+.toolbar-btn {
+    cursor: pointer;
 }
 
 .toolbar-btn.primary,
@@ -575,6 +587,95 @@ h3 {
     font-size: 0.82rem;
 }
 
+.login-body {
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.login-shell {
+    width: min(100%, 460px);
+}
+
+.login-panel {
+    padding: 28px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.76);
+    box-shadow: var(--shadow);
+}
+
+.login-brand {
+    margin-bottom: 22px;
+}
+
+.login-kicker {
+    display: inline-block;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+    color: var(--muted);
+}
+
+.login-brand h1 {
+    margin-bottom: 10px;
+    font-size: 2.1rem;
+}
+
+.login-brand p {
+    margin-bottom: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.login-form {
+    display: grid;
+    gap: 16px;
+}
+
+.field-group {
+    display: grid;
+    gap: 8px;
+}
+
+.field-group span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.field-group input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid rgba(187, 198, 223, 0.42);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+}
+
+.form-error {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 109, 109, 0.12);
+    color: #a63a3a;
+    font-size: 0.82rem;
+}
+
+.form-error p {
+    margin-bottom: 0;
+}
+
+.login-submit {
+    min-height: 46px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-soft) 100%);
+    color: #ffffff;
+    font-weight: 700;
+}
+
 @media (max-width: 1240px) {
     .content-grid.two-up,
     .summary-grid {
@@ -630,7 +731,6 @@ h3 {
 @media (max-width: 760px) {
     .topbar,
     .topbar-actions,
-    .search-row,
     .pagination-row {
         flex-direction: column;
         align-items: stretch;
@@ -639,6 +739,10 @@ h3 {
     .topbar-actions {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .search-row {
+        grid-template-columns: 1fr;
     }
 
     .summary-grid,

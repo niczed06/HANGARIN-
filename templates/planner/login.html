@@ -1,0 +1,51 @@
+{% load inline_assets static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hangarin | Login</title>
+    <link rel="stylesheet" href="{% static 'planner/css/dashboard.css' %}">
+    <style>
+        {% inline_css 'planner/css/dashboard.css' %}
+    </style>
+</head>
+<body class="login-body">
+    <main class="login-shell">
+        <section class="login-panel">
+            <div class="login-brand">
+                <span class="login-kicker">Task manager access</span>
+                <h1>Hangarin</h1>
+                <p>Sign in to load the dashboard with your account name in the profile panel.</p>
+            </div>
+
+            <form method="post" class="login-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <label class="field-group" for="{{ form.username.id_for_label }}">
+                    <span>Username</span>
+                    {{ form.username }}
+                </label>
+
+                <label class="field-group" for="{{ form.password.id_for_label }}">
+                    <span>Password</span>
+                    {{ form.password }}
+                </label>
+
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <button type="submit" class="login-submit">Log In</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

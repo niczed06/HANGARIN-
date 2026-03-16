@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from datetime import timedelta
 
 from django.core.management import call_command
@@ -40,6 +41,12 @@ class PlannerModelTests(TestCase):
 
 class PlannerViewTests(TestCase):
     def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="richo",
+            password="secret-pass-123",
+            first_name="Richo",
+            last_name="Baterzal",
+        )
         category = Category.objects.get(name="Work")
         priority = Priority.objects.get(name="Critical")
         task = Task.objects.create(
@@ -51,6 +58,7 @@ class PlannerViewTests(TestCase):
         )
         Note.objects.create(task=task, content="Admin changes should appear on the frontend.")
         SubTask.objects.create(task=task, title="Prepare sidebar preview")
+        self.client.force_login(self.user)
 
     def test_dashboard_renders_shared_task_data(self):
         response = self.client.get(reverse("planner:dashboard"))
@@ -60,6 +68,8 @@ class PlannerViewTests(TestCase):
         self.assertContains(response, "Dashboard")
         self.assertContains(response, "Sub Tasks")
         self.assertContains(response, "Latest Task Updates")
+        self.assertContains(response, "Richo Baterzal")
+        self.assertContains(response, "Welcome back, Richo")
         self.assertContains(response, "--sidebar: #202f54;")
 
     def test_task_board_page_is_available(self):
@@ -78,6 +88,20 @@ class PlannerViewTests(TestCase):
             response = self.client.get(reverse(route_name))
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, expected)
+
+    def test_login_page_renders(self):
+        self.client.logout()
+        response = self.client.get(reverse("planner:login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sign in to load the dashboard")
+
+    def test_dashboard_requires_login(self):
+        self.client.logout()
+        response = self.client.get(reverse("planner:dashboard"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("planner:login"), response.url)
 
 
 class SeedCommandTests(TestCase):
