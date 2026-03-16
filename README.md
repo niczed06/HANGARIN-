@@ -42,3 +42,28 @@ The command keeps the reference priorities and categories, then generates fake t
 6. Run `python manage.py collectstatic`.
 7. Point the PythonAnywhere WSGI file to `config.wsgi`.
 
+## Social login setup
+
+The website login page supports:
+
+- Username and password
+- Google OAuth
+- GitHub OAuth
+
+To enable Google and GitHub login with environment variables, set:
+
+```text
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_SECRET=...
+GITHUB_OAUTH_CLIENT_ID=...
+GITHUB_OAUTH_SECRET=...
+```
+
+Callback URLs:
+
+```text
+https://YOUR_DOMAIN/accounts/google/login/callback/
+https://YOUR_DOMAIN/accounts/github/login/callback/
+```
+
+You can also configure social providers from Django admin using `Social applications`, but if you do that, make sure the Site domain matches your deployed domain.

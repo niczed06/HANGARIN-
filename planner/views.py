@@ -1,12 +1,16 @@
 from datetime import timedelta
 
+from django.apps import apps
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.db.utils import OperationalError, ProgrammingError
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
-from django.contrib.auth.views import LoginView
 
 from .models import Category, Note, Priority, SubTask, Task
 
@@ -66,9 +70,38 @@ def get_display_name(user):
     return full_name or user.get_username()
 
 
+def provider_is_configured(request, provider_id):
+    provider_settings = settings.SOCIALACCOUNT_PROVIDERS.get(provider_id, {})
+    if provider_settings.get("APPS") or provider_settings.get("APP"):
+        return True
+
+    try:
+        SocialApp = apps.get_model("socialaccount", "SocialApp")
+    except LookupError:
+        return False
+
+    try:
+        queryset = SocialApp.objects.filter(provider=provider_id)
+        if apps.is_installed("django.contrib.sites"):
+            queryset = queryset.filter(sites=get_current_site(request))
+        return queryset.exists()
+    except (OperationalError, ProgrammingError):
+        return False
+
+
 class PlannerLoginView(LoginView):
     template_name = "planner/login.html"
     redirect_authenticated_user = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "google_login_available": provider_is_configured(self.request, "google"),
+                "github_login_available": provider_is_configured(self.request, "github"),
+            }
+        )
+        return context
 
 
 class PlannerBaseView(LoginRequiredMixin, TemplateView):

@@ -94,7 +94,10 @@ class PlannerViewTests(TestCase):
         response = self.client.get(reverse("planner:login"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Sign in to load the dashboard")
+        self.assertContains(response, "Username")
+        self.assertContains(response, "Google")
+        self.assertContains(response, "GitHub")
+        self.assertContains(response, "Continue with")
 
     def test_dashboard_requires_login(self):
         self.client.logout()

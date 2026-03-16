@@ -21,8 +21,14 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
+    "django.contrib.sites",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.google",
     "planner",
 ]
 
@@ -33,6 +39,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -91,3 +98,37 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+
+def _oauth_app_config(client_id_env, secret_env):
+    client_id = os.environ.get(client_id_env, "").strip()
+    secret = os.environ.get(secret_env, "").strip()
+    if not client_id or not secret:
+        return []
+    return [
+        {
+            "client_id": client_id,
+            "secret": secret,
+            "key": "",
+        }
+    ]
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": _oauth_app_config("GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_SECRET"),
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "OAUTH_PKCE_ENABLED": True,
+    },
+    "github": {
+        "APPS": _oauth_app_config("GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_SECRET"),
+        "SCOPE": ["user:email"],
+    },
+}
