@@ -1,63 +1,67 @@
 {% extends "planner/base.html" %}
 
-{% block title %}Hangarin | SubTasks{% endblock %}
-{% block hero_title %}SubTasks{% endblock %}
-{% block hero_copy %}Track nested work items from the same backend models that power tasks and the Django admin.{% endblock %}
+{% block title %}Hangarin | Sub Tasks{% endblock %}
 
 {% block content %}
-    <section class="panel-grid compact-panels">
-        {% for card in subtask_cards %}
-            <article class="panel mini-panel">
-                <div class="panel-heading">
-                    <h3>{{ card.label }}</h3>
-                    <span class="status-chip tone-{{ card.tone }}">{{ card.count }}</span>
-                </div>
-            </article>
-        {% endfor %}
-    </section>
+    <section class="section-card page-section">
+        <div class="section-head">
+            <h2>Sub Tasks</h2>
+            <a class="section-action" href="{% url 'admin:planner_subtask_add' %}">Add SubTask</a>
+        </div>
 
-    <section class="panel-grid">
-        <article class="panel">
-            <div class="panel-heading">
-                <h3>Parent Task Progress</h3>
-                <span>Tasks with the most subtask activity</span>
-            </div>
-            <div class="stack-list">
-                {% for task in parent_tasks %}
-                    <div class="stack-item">
-                        <div>
-                            <strong>{{ task.title }}</strong>
-                            <p>{{ task.category }} . {{ task.priority }}</p>
-                        </div>
-                        <span>{{ task.completed_subtasks }}/{{ task.subtask_total }}</span>
-                    </div>
-                {% empty %}
-                    <p class="empty-copy">No parent tasks with subtasks yet.</p>
-                {% endfor %}
-            </div>
-        </article>
+        <section class="summary-grid">
+            {% for card in summary_cards %}
+                <article class="summary-card compact">
+                    <span>{{ card.label }}</span>
+                    <strong>{{ card.value }}</strong>
+                </article>
+            {% endfor %}
+        </section>
 
-        <article class="panel">
-            <div class="panel-heading">
-                <h3>Recent SubTasks</h3>
-                <span>Latest updates across tasks</span>
+        <form class="search-row" method="get">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search sub task title, status, or parent task">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Parent Task</th>
+                        <th>Status</th>
+                        <th>Updated</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subtask in subtasks %}
+                        <tr>
+                            <td>{{ subtask.title }}</td>
+                            <td>{{ subtask.task.title }}</td>
+                            <td><span class="status-pill tone-{% if subtask.status == 'Pending' %}pending{% elif subtask.status == 'In Progress' %}progress{% else %}complete{% endif %}">{{ subtask.status }}</span></td>
+                            <td>{{ subtask.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td><a class="table-action" href="{% url 'admin:planner_subtask_change' subtask.id %}">Edit</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No subtasks found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-row">
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            <div class="pagination-actions">
+                {% if page_obj.has_previous %}
+                    <a href="?q={{ search_query|urlencode }}&page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?q={{ search_query|urlencode }}&page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+                {% endif %}
             </div>
-            <div class="stack-list">
-                {% for subtask in subtasks %}
-                    <div class="stack-item">
-                        <div>
-                            <strong>{{ subtask.title }}</strong>
-                            <p>{{ subtask.task.title }}</p>
-                        </div>
-                        <span class="status-chip tone-{% if subtask.status == 'Pending' %}pending{% elif subtask.status == 'In Progress' %}progress{% else %}complete{% endif %}">
-                            {{ subtask.status }}
-                        </span>
-                    </div>
-                {% empty %}
-                    <p class="empty-copy">No subtasks available.</p>
-                {% endfor %}
-            </div>
-        </article>
+        </div>
     </section>
 {% endblock %}
-

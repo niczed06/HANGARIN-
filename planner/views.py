@@ -1,16 +1,37 @@
 from datetime import timedelta
 
+from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
 
 from .models import Category, Note, Priority, SubTask, Task
+
+STATUS_ORDER = [
+    Task.TaskStatus.PENDING,
+    Task.TaskStatus.IN_PROGRESS,
+    Task.TaskStatus.COMPLETED,
+]
 
 STATUS_TONES = {
     Task.TaskStatus.PENDING: "pending",
     Task.TaskStatus.IN_PROGRESS: "progress",
     Task.TaskStatus.COMPLETED: "complete",
 }
+
+
+def format_long_date(value):
+    return value.strftime("%A, %B %d, %Y").replace(" 0", " ")
+
+
+def paginate(request, queryset, per_page=8):
+    paginator = Paginator(queryset, per_page)
+    return paginator.get_page(request.GET.get("page"))
+
+
+def get_search_query(request):
+    return request.GET.get("q", "").strip()
 
 
 def get_navigation_metrics():
@@ -38,277 +59,306 @@ def get_task_queryset():
     )
 
 
-class DashboardView(TemplateView):
+class PlannerBaseView(TemplateView):
+    active_page = ""
+    page_title = ""
+    primary_action_label = "New Task"
+    primary_action_url = reverse_lazy("admin:planner_task_add")
+
+    def build_shell_context(self):
+        today = timezone.localdate()
+        username = self.request.user.username if self.request.user.is_authenticated else "richo"
+        return {
+            "active_page": self.active_page,
+            "page_title": self.page_title,
+            "nav_stats": get_navigation_metrics(),
+            "search_query": get_search_query(self.request),
+            "toolbar_date": today.strftime("%b %d, %Y"),
+            "toolbar_date_long": format_long_date(today),
+            "toolbar_user": username,
+            "toolbar_initial": username[:1].upper(),
+            "primary_action_label": self.primary_action_label,
+            "primary_action_url": self.primary_action_url,
+            "secondary_action_label": "Log Out",
+            "secondary_action_url": reverse_lazy("admin:logout"),
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.build_shell_context())
+        return context
+
+
+class DashboardView(PlannerBaseView):
     template_name = "planner/dashboard.html"
+    active_page = "dashboard"
+    page_title = "Dashboard"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         now = timezone.now()
-        today = timezone.localdate()
         task_queryset = get_task_queryset()
         total_tasks = task_queryset.count()
-        completed_tasks = task_queryset.filter(status=Task.TaskStatus.COMPLETED).count()
-        due_this_week = Task.objects.filter(
-            deadline__date__gte=today,
-            deadline__date__lte=today + timedelta(days=7),
-        ).count()
-        overdue_tasks = Task.objects.filter(deadline__lt=now).exclude(
-            status=Task.TaskStatus.COMPLETED
-        ).count()
-        completion_rate = int((completed_tasks / total_tasks) * 100) if total_tasks else 0
-
-        status_map = {
+        status_totals = {
             row["status"]: row["total"]
             for row in Task.objects.values("status").annotate(total=Count("id"))
         }
-        status_cards = [
-            {
-                "label": status,
-                "count": status_map.get(status, 0),
-                "tone": STATUS_TONES[status],
-            }
-            for status in Task.TaskStatus.values
+        hero_metrics = [
+            {"label": "SubTasks", "value": context["nav_stats"]["subtask_count"]},
+            {"label": "Notes", "value": context["nav_stats"]["note_count"]},
+            {"label": "Categories", "value": context["nav_stats"]["category_count"]},
+            {"label": "Priorities", "value": context["nav_stats"]["priority_count"]},
         ]
-
         overview_cards = [
+            {"label": "Total Tasks", "value": total_tasks, "tone": "neutral"},
             {
-                "label": "Total Tasks",
-                "value": total_tasks,
-                "caption": "Everything tracked across the workspace.",
+                "label": "Pending",
+                "value": status_totals.get(Task.TaskStatus.PENDING, 0),
+                "tone": "pending",
             },
             {
-                "label": "Completion Rate",
-                "value": f"{completion_rate}%",
-                "caption": "Based on the current task status mix.",
+                "label": "In Progress",
+                "value": status_totals.get(Task.TaskStatus.IN_PROGRESS, 0),
+                "tone": "progress",
             },
             {
-                "label": "Due This Week",
-                "value": due_this_week,
-                "caption": "Deadlines scheduled within the next 7 days.",
-            },
-            {
-                "label": "Overdue",
-                "value": overdue_tasks,
-                "caption": "Tasks that need immediate attention.",
+                "label": "Completed",
+                "value": status_totals.get(Task.TaskStatus.COMPLETED, 0),
+                "tone": "complete",
             },
         ]
 
-        category_summary = Task.objects.values("category__name").annotate(
-            total=Count("id")
-        ).order_by("-total", "category__name")[:5]
-        priority_summary = Task.objects.values("priority__name").annotate(
-            total=Count("id")
-        ).order_by("-total", "priority__name")[:5]
-
-        context.update(
-            {
-                "active_page": "dashboard",
-                "page_title": "Overview",
-                "nav_stats": get_navigation_metrics(),
-                "overview_cards": overview_cards,
-                "status_cards": status_cards,
-                "upcoming_tasks": task_queryset.filter(deadline__gte=now).order_by("deadline")[:5],
-                "recent_tasks": task_queryset.order_by("-updated_at")[:6],
-                "recent_notes": Note.objects.select_related("task").order_by("-created_at")[:6],
-                "category_summary": category_summary,
-                "priority_summary": priority_summary,
-            }
-        )
-        return context
-
-
-class TaskBoardView(TemplateView):
-    template_name = "planner/tasks.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        tasks = list(get_task_queryset().order_by("deadline", "title"))
-        columns = []
-        for status in Task.TaskStatus.values:
-            bucket = [task for task in tasks if task.status == status]
-            columns.append(
+        status_rows = []
+        for status in STATUS_ORDER:
+            count = status_totals.get(status, 0)
+            percentage = int((count / total_tasks) * 100) if total_tasks else 0
+            status_rows.append(
                 {
                     "label": status,
+                    "count": count,
+                    "percentage": percentage,
                     "tone": STATUS_TONES[status],
-                    "count": len(bucket),
-                    "tasks": bucket,
                 }
             )
 
+        category_rows = list(
+            Task.objects.values("category__name")
+            .annotate(total=Count("id"))
+            .order_by("-total", "category__name")[:5]
+        )
+        recent_tasks = task_queryset.order_by("-updated_at")[:6]
+        upcoming_tasks = list(task_queryset.filter(deadline__gte=now).order_by("deadline")[:5])
+        if not upcoming_tasks:
+            upcoming_tasks = list(task_queryset.order_by("deadline")[:5])
+
         context.update(
             {
-                "active_page": "tasks",
-                "page_title": "Task Board",
-                "nav_stats": get_navigation_metrics(),
-                "columns": columns,
-                "task_count": len(tasks),
+                "welcome_name": context["toolbar_user"],
+                "hero_metrics": hero_metrics,
+                "overview_cards": overview_cards,
+                "status_rows": status_rows,
+                "category_rows": category_rows,
+                "recent_tasks": recent_tasks,
+                "upcoming_tasks": upcoming_tasks,
             }
         )
         return context
 
 
-class SubTaskListView(TemplateView):
-    template_name = "planner/subtasks.html"
+class TaskBoardView(PlannerBaseView):
+    template_name = "planner/tasks.html"
+    active_page = "tasks"
+    page_title = "Tasks"
+    primary_action_label = "New Task"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        query = context["search_query"]
+        tasks = get_task_queryset().order_by("deadline", "title")
+        if query:
+            tasks = tasks.filter(
+                Q(title__icontains=query)
+                | Q(description__icontains=query)
+                | Q(category__name__icontains=query)
+                | Q(priority__name__icontains=query)
+                | Q(status__icontains=query)
+            )
+
+        page_obj = paginate(self.request, tasks, per_page=8)
+        total_tasks = tasks.count()
+        status_totals = {
+            row["status"]: row["total"]
+            for row in tasks.values("status").annotate(total=Count("id"))
+        }
+
+        context.update(
+            {
+                "summary_cards": [
+                    {"label": "Tasks", "value": total_tasks},
+                    {
+                        "label": "Pending",
+                        "value": status_totals.get(Task.TaskStatus.PENDING, 0),
+                    },
+                    {
+                        "label": "In Progress",
+                        "value": status_totals.get(Task.TaskStatus.IN_PROGRESS, 0),
+                    },
+                    {
+                        "label": "Completed",
+                        "value": status_totals.get(Task.TaskStatus.COMPLETED, 0),
+                    },
+                ],
+                "page_obj": page_obj,
+                "tasks": page_obj.object_list,
+            }
+        )
+        return context
+
+
+class SubTaskListView(PlannerBaseView):
+    template_name = "planner/subtasks.html"
+    active_page = "subtasks"
+    page_title = "Sub Tasks"
+    primary_action_label = "New Task"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = context["search_query"]
         subtasks = SubTask.objects.select_related(
             "task", "task__category", "task__priority"
         ).order_by("-updated_at", "-created_at")
-        parent_tasks = (
-            Task.objects.select_related("category", "priority")
-            .annotate(
-                subtask_total=Count("subtasks", distinct=True),
-                completed_subtasks=Count(
-                    "subtasks",
-                    filter=Q(subtasks__status=Task.TaskStatus.COMPLETED),
-                    distinct=True,
-                ),
+        if query:
+            subtasks = subtasks.filter(
+                Q(title__icontains=query)
+                | Q(status__icontains=query)
+                | Q(task__title__icontains=query)
             )
-            .filter(subtask_total__gt=0)
-            .order_by("-subtask_total", "title")[:6]
-        )
-        status_counts = {
+
+        page_obj = paginate(self.request, subtasks, per_page=8)
+        status_totals = {
             row["status"]: row["total"]
-            for row in SubTask.objects.values("status").annotate(total=Count("id"))
+            for row in subtasks.values("status").annotate(total=Count("id"))
         }
-        subtask_cards = [
-            {
-                "label": status,
-                "count": status_counts.get(status, 0),
-                "tone": STATUS_TONES[status],
-            }
-            for status in Task.TaskStatus.values
-        ]
 
         context.update(
             {
-                "active_page": "subtasks",
-                "page_title": "SubTasks",
-                "nav_stats": get_navigation_metrics(),
-                "subtasks": subtasks[:18],
-                "parent_tasks": parent_tasks,
-                "subtask_cards": subtask_cards,
+                "summary_cards": [
+                    {"label": "Sub Tasks", "value": subtasks.count()},
+                    {
+                        "label": "Pending",
+                        "value": status_totals.get(Task.TaskStatus.PENDING, 0),
+                    },
+                    {
+                        "label": "In Progress",
+                        "value": status_totals.get(Task.TaskStatus.IN_PROGRESS, 0),
+                    },
+                    {
+                        "label": "Completed",
+                        "value": status_totals.get(Task.TaskStatus.COMPLETED, 0),
+                    },
+                ],
+                "page_obj": page_obj,
+                "subtasks": page_obj.object_list,
             }
         )
         return context
 
 
-class CategoryListView(TemplateView):
+class CategoryListView(PlannerBaseView):
     template_name = "planner/categories.html"
+    active_page = "categories"
+    page_title = "Categories"
+    primary_action_label = "New Task"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        categories = (
-            Category.objects.annotate(
-                task_total=Count("tasks", distinct=True),
-                completed_total=Count(
-                    "tasks",
-                    filter=Q(tasks__status=Task.TaskStatus.COMPLETED),
-                    distinct=True,
-                ),
-                open_total=Count(
-                    "tasks",
-                    filter=Q(
-                        tasks__status__in=[
-                            Task.TaskStatus.PENDING,
-                            Task.TaskStatus.IN_PROGRESS,
-                        ]
-                    ),
-                    distinct=True,
-                ),
-            )
-            .order_by("-task_total", "name")
-        )
-        busiest_tasks = (
-            get_task_queryset()
-            .order_by("-note_total", "-subtask_total", "title")[:8]
-        )
+        query = context["search_query"]
+        categories = Category.objects.annotate(
+            task_total=Count("tasks", distinct=True)
+        ).order_by("name")
+        if query:
+            categories = categories.filter(name__icontains=query)
 
+        page_obj = paginate(self.request, categories, per_page=8)
         context.update(
             {
-                "active_page": "categories",
-                "page_title": "Categories",
-                "nav_stats": get_navigation_metrics(),
-                "categories": categories,
-                "busiest_tasks": busiest_tasks,
+                "summary_cards": [
+                    {"label": "Categories", "value": categories.count()},
+                    {
+                        "label": "Assigned Tasks",
+                        "value": sum(item.task_total for item in categories),
+                    },
+                ],
+                "page_obj": page_obj,
+                "categories": page_obj.object_list,
             }
         )
         return context
 
 
-class PriorityListView(TemplateView):
+class PriorityListView(PlannerBaseView):
     template_name = "planner/priorities.html"
+    active_page = "priorities"
+    page_title = "Priorities"
+    primary_action_label = "New Task"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        priorities = (
-            Priority.objects.annotate(
-                task_total=Count("tasks", distinct=True),
-                open_total=Count(
-                    "tasks",
-                    filter=Q(
-                        tasks__status__in=[
-                            Task.TaskStatus.PENDING,
-                            Task.TaskStatus.IN_PROGRESS,
-                        ]
-                    ),
-                    distinct=True,
-                ),
-                completed_total=Count(
-                    "tasks",
-                    filter=Q(tasks__status=Task.TaskStatus.COMPLETED),
-                    distinct=True,
-                ),
-                overdue_total=Count(
-                    "tasks",
-                    filter=Q(tasks__deadline__lt=timezone.now())
-                    & Q(
-                        tasks__status__in=[
-                            Task.TaskStatus.PENDING,
-                            Task.TaskStatus.IN_PROGRESS,
-                        ]
-                    ),
-                    distinct=True,
-                ),
-            )
-            .order_by("-task_total", "name")
-        )
+        query = context["search_query"]
+        priorities = Priority.objects.annotate(
+            task_total=Count("tasks", distinct=True)
+        ).order_by("name")
+        if query:
+            priorities = priorities.filter(name__icontains=query)
 
+        page_obj = paginate(self.request, priorities, per_page=8)
         context.update(
             {
-                "active_page": "priorities",
-                "page_title": "Priorities",
-                "nav_stats": get_navigation_metrics(),
-                "priorities": priorities,
-                "priority_tasks": get_task_queryset().order_by("deadline", "title")[:10],
+                "summary_cards": [
+                    {"label": "Priorities", "value": priorities.count()},
+                    {
+                        "label": "Tagged Tasks",
+                        "value": sum(item.task_total for item in priorities),
+                    },
+                ],
+                "page_obj": page_obj,
+                "priorities": page_obj.object_list,
             }
         )
         return context
 
 
-class NotesFeedView(TemplateView):
+class NotesFeedView(PlannerBaseView):
     template_name = "planner/notes.html"
+    active_page = "notes"
+    page_title = "Notes"
+    primary_action_label = "New Task"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        query = context["search_query"]
         notes = Note.objects.select_related(
             "task", "task__category", "task__priority"
-        ).order_by("-created_at")
-        task_notes = (
-            Task.objects.select_related("category", "priority")
-            .annotate(note_total=Count("notes"))
-            .filter(note_total__gt=0)
-            .order_by("-note_total", "title")[:5]
-        )
+        ).order_by("-updated_at", "-created_at")
+        if query:
+            notes = notes.filter(
+                Q(content__icontains=query) | Q(task__title__icontains=query)
+            )
 
+        page_obj = paginate(self.request, notes, per_page=8)
         context.update(
             {
-                "active_page": "notes",
-                "page_title": "Notes Feed",
-                "nav_stats": get_navigation_metrics(),
-                "notes": notes[:18],
-                "task_notes": task_notes,
+                "summary_cards": [
+                    {"label": "Notes", "value": notes.count()},
+                    {
+                        "label": "Tasks With Notes",
+                        "value": Task.objects.annotate(note_total=Count("notes"))
+                        .filter(note_total__gt=0)
+                        .count(),
+                    },
+                ],
+                "page_obj": page_obj,
+                "notes": page_obj.object_list,
             }
         )
         return context

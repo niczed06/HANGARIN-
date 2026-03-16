@@ -11,129 +11,103 @@
     </style>
 </head>
 <body>
-    <div class="app-shell">
+    <div class="layout-shell">
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <p class="eyebrow">Shared frontend and admin</p>
-                <h1 class="brand">Hangarin</h1>
-            </div>
+            <div class="sidebar-brand">Hangarin</div>
 
-            <div class="sidebar-nav-shell">
-                <nav class="sidebar-nav">
-                    <a href="{% url 'planner:dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}is-active{% endif %}">
-                        <span class="nav-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="4" y="4" width="6" height="6" rx="1.6"></rect>
-                                <rect x="14" y="4" width="6" height="6" rx="1.6"></rect>
-                                <rect x="4" y="14" width="6" height="6" rx="1.6"></rect>
-                                <rect x="14" y="14" width="6" height="6" rx="1.6"></rect>
-                            </svg>
-                        </span>
-                        <span class="nav-label">Dashboard</span>
-                    </a>
-                    <a href="{% url 'planner:tasks' %}" class="nav-item {% if active_page == 'tasks' %}is-active{% endif %}">
-                        <span class="nav-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="8"></circle>
-                                <path d="M9 12.5l2 2 4-5"></path>
-                            </svg>
-                        </span>
-                        <span class="nav-label">Tasks</span>
-                    </a>
-                    <a href="{% url 'planner:subtasks' %}" class="nav-item {% if active_page == 'subtasks' %}is-active{% endif %}">
-                        <span class="nav-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M7 7h4v4H7z"></path>
-                                <path d="M13 13h4v4h-4z"></path>
-                                <path d="M13 7h4v4h-4z"></path>
-                                <path d="M11 9h2"></path>
-                                <path d="M11 15h2"></path>
-                            </svg>
-                        </span>
-                        <span class="nav-label">SubTasks</span>
-                    </a>
-                    <a href="{% url 'planner:categories' %}" class="nav-item {% if active_page == 'categories' %}is-active{% endif %}">
-                        <span class="nav-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 4l4 6H8l4-6z"></path>
-                                <rect x="4" y="14" width="6" height="6" rx="1.5"></rect>
-                                <rect x="14" y="14" width="6" height="6" rx="1.5"></rect>
-                            </svg>
-                        </span>
-                        <span class="nav-label">Categories</span>
-                    </a>
-                    <a href="{% url 'planner:priorities' %}" class="nav-item {% if active_page == 'priorities' %}is-active{% endif %}">
-                        <span class="nav-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M8 5v14"></path>
-                                <path d="M8 5h9l-2.5 3L17 11H8"></path>
-                            </svg>
-                        </span>
-                        <span class="nav-label">Priorities</span>
-                    </a>
-                    <a href="{% url 'planner:notes' %}" class="nav-item {% if active_page == 'notes' %}is-active{% endif %}">
-                        <span class="nav-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="6" y="4" width="12" height="16" rx="2"></rect>
-                                <path d="M9 9h6"></path>
-                                <path d="M9 13h6"></path>
-                                <path d="M9 17h4"></path>
-                            </svg>
-                        </span>
-                        <span class="nav-label">Notes</span>
-                    </a>
-                </nav>
-            </div>
-
-            <section class="sidebar-metrics">
-                <div class="sidebar-metric">
+            <nav class="sidebar-nav">
+                <a href="{% url 'planner:dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}is-active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="4" width="6" height="6" rx="1.4"></rect>
+                            <rect x="14" y="4" width="6" height="6" rx="1.4"></rect>
+                            <rect x="4" y="14" width="6" height="6" rx="1.4"></rect>
+                            <rect x="14" y="14" width="6" height="6" rx="1.4"></rect>
+                        </svg>
+                    </span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'planner:tasks' %}" class="nav-item {% if active_page == 'tasks' %}is-active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="8"></circle>
+                            <path d="M9 12.5l2 2 4-5"></path>
+                        </svg>
+                    </span>
                     <span>Tasks</span>
-                    <strong>{{ nav_stats.task_count }}</strong>
-                </div>
-                <div class="sidebar-metric">
-                    <span>SubTasks</span>
-                    <strong>{{ nav_stats.subtask_count }}</strong>
-                </div>
-                <div class="sidebar-metric">
+                </a>
+                <a href="{% url 'planner:subtasks' %}" class="nav-item {% if active_page == 'subtasks' %}is-active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M7 8h4v4H7z"></path>
+                            <path d="M13 8h4v4h-4z"></path>
+                            <path d="M13 14h4v4h-4z"></path>
+                            <path d="M11 10h2"></path>
+                            <path d="M11 16h2"></path>
+                        </svg>
+                    </span>
+                    <span>Sub Tasks</span>
+                </a>
+                <a href="{% url 'planner:categories' %}" class="nav-item {% if active_page == 'categories' %}is-active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4l4 6H8l4-6z"></path>
+                            <rect x="4" y="14" width="6" height="6" rx="1.4"></rect>
+                            <rect x="14" y="14" width="6" height="6" rx="1.4"></rect>
+                        </svg>
+                    </span>
                     <span>Categories</span>
-                    <strong>{{ nav_stats.category_count }}</strong>
-                </div>
-                <div class="sidebar-metric">
+                </a>
+                <a href="{% url 'planner:priorities' %}" class="nav-item {% if active_page == 'priorities' %}is-active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M8 5v14"></path>
+                            <path d="M8 5h9l-2.5 3L17 11H8"></path>
+                        </svg>
+                    </span>
                     <span>Priorities</span>
-                    <strong>{{ nav_stats.priority_count }}</strong>
-                </div>
-                <div class="sidebar-metric">
+                </a>
+                <a href="{% url 'planner:notes' %}" class="nav-item {% if active_page == 'notes' %}is-active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect x="6" y="4" width="12" height="16" rx="2"></rect>
+                            <path d="M9 9h6"></path>
+                            <path d="M9 13h6"></path>
+                            <path d="M9 17h4"></path>
+                        </svg>
+                    </span>
                     <span>Notes</span>
-                    <strong>{{ nav_stats.note_count }}</strong>
-                </div>
-                <div class="sidebar-metric">
-                    <span>Due Today</span>
-                    <strong>{{ nav_stats.due_today }}</strong>
-                </div>
-            </section>
-
-            <div class="sidebar-copy">
-                <p>
-                    A single Django workspace for daily tasks, notes, priorities, and subtasks.
-                </p>
-            </div>
-
-            <div class="sidebar-actions">
-                <a class="ghost-link" href="{% url 'admin:index' %}">Open Django Admin</a>
-                <a class="ghost-link secondary" href="{% url 'admin:planner_task_add' %}">Add task in admin</a>
-            </div>
+                </a>
+            </nav>
         </aside>
 
         <main class="main-panel">
-            <header class="page-header">
-                <div>
-                    <p class="eyebrow">Task and To-Do Manager</p>
-                    <h2>{% block hero_title %}{{ page_title }}{% endblock %}</h2>
-                    <p class="hero-copy">{% block hero_copy %}{% endblock %}</p>
-                </div>
-                <div class="header-actions">
-                    <a class="action-link primary" href="{% url 'admin:planner_task_add' %}">New Task</a>
-                    <a class="action-link" href="{% url 'admin:index' %}">Open Admin</a>
+            <header class="topbar">
+                <h1 class="topbar-title">{{ page_title }}</h1>
+                <div class="topbar-actions">
+                    <a class="toolbar-btn primary" href="{{ primary_action_url }}">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5v14"></path>
+                            <path d="M5 12h14"></path>
+                        </svg>
+                        <span>{{ primary_action_label }}</span>
+                    </a>
+                    <div class="toolbar-chip toolbar-date">
+                        <span class="chip-label">Today</span>
+                        <strong>{{ toolbar_date }}</strong>
+                    </div>
+                    <div class="toolbar-chip toolbar-user">
+                        <span class="user-badge">{{ toolbar_initial }}</span>
+                        <strong>{{ toolbar_user }}</strong>
+                    </div>
+                    <a class="toolbar-btn" href="{{ secondary_action_url }}">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M10 17l5-5-5-5"></path>
+                            <path d="M15 12H5"></path>
+                            <path d="M19 5v14"></path>
+                        </svg>
+                        <span>{{ secondary_action_label }}</span>
+                    </a>
                 </div>
             </header>
 

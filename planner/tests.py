@@ -57,23 +57,23 @@ class PlannerViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Publish schedule")
-        self.assertContains(response, "Overview")
         self.assertContains(response, "Dashboard")
-        self.assertContains(response, "SubTasks")
-        self.assertContains(response, "--sidebar: #1b2646;")
+        self.assertContains(response, "Sub Tasks")
+        self.assertContains(response, "Latest Task Updates")
+        self.assertContains(response, "--sidebar: #202f54;")
 
     def test_task_board_page_is_available(self):
         response = self.client.get(reverse("planner:tasks"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Pending")
+        self.assertContains(response, "Search title, description, category, priority, or status")
 
     def test_additional_navigation_pages_are_available(self):
         for route_name, expected in [
-            ("planner:subtasks", "Recent SubTasks"),
+            ("planner:subtasks", "Search sub task title, status, or parent task"),
             ("planner:categories", "Categories"),
             ("planner:priorities", "Priorities"),
-            ("planner:notes", "Notes Feed"),
+            ("planner:notes", "Search note content or task title"),
         ]:
             response = self.client.get(reverse(route_name))
             self.assertEqual(response.status_code, 200)

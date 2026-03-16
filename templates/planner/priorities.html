@@ -1,48 +1,53 @@
 {% extends "planner/base.html" %}
 
 {% block title %}Hangarin | Priorities{% endblock %}
-{% block hero_title %}Priorities{% endblock %}
-{% block hero_copy %}See how workload and urgency are distributed across all priority levels from the shared Django backend.{% endblock %}
 
 {% block content %}
-    <section class="entity-grid">
-        {% for priority in priorities %}
-            <article class="entity-card">
-                <div class="entity-card-head">
-                    <h3>{{ priority.name }}</h3>
-                    <span class="entity-count">{{ priority.task_total }}</span>
-                </div>
-                <div class="entity-stats">
-                    <div><span>Open</span><strong>{{ priority.open_total }}</strong></div>
-                    <div><span>Completed</span><strong>{{ priority.completed_total }}</strong></div>
-                    <div><span>Overdue</span><strong>{{ priority.overdue_total }}</strong></div>
-                </div>
-            </article>
-        {% empty %}
-            <article class="panel empty-state">
-                <h3>No priorities yet</h3>
-                <p>Add priorities in admin or run the seed command.</p>
-            </article>
-        {% endfor %}
-    </section>
-
-    <section class="panel">
-        <div class="panel-heading">
-            <h3>Upcoming by Priority</h3>
-            <span>First ten upcoming tasks across all levels</span>
+    <section class="section-card page-section">
+        <div class="section-head">
+            <h2>Priorities</h2>
+            <a class="section-action" href="{% url 'admin:planner_priority_add' %}">Add Priority</a>
         </div>
-        <div class="stack-list">
-            {% for task in priority_tasks %}
-                <div class="stack-item">
-                    <div>
-                        <strong>{{ task.title }}</strong>
-                        <p>{{ task.priority }} . {{ task.category }}</p>
-                    </div>
-                    <span>{{ task.deadline|date:"M d, Y h:i A" }}</span>
-                </div>
-            {% empty %}
-                <p class="empty-copy">No upcoming tasks yet.</p>
+
+        <section class="summary-grid split-two">
+            {% for card in summary_cards %}
+                <article class="summary-card compact">
+                    <span>{{ card.label }}</span>
+                    <strong>{{ card.value }}</strong>
+                </article>
             {% endfor %}
+        </section>
+
+        <form class="search-row" method="get">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search priority name">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Tasks Linked</th>
+                        <th>Updated</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for priority in priorities %}
+                        <tr>
+                            <td>{{ priority.name }}</td>
+                            <td>{{ priority.task_total }}</td>
+                            <td>{{ priority.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td><a class="table-action" href="{% url 'admin:planner_priority_change' priority.id %}">Edit</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No priorities found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </section>
 {% endblock %}
