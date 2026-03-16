@@ -1,0 +1,63 @@
+{% extends "planner/base.html" %}
+
+{% block title %}Hangarin | Notes Feed{% endblock %}
+{% block hero_title %}Notes Feed{% endblock %}
+{% block hero_copy %}Notes remain linked to their parent tasks, categories, and priorities, which keeps the frontend view aligned with the admin records.{% endblock %}
+
+{% block content %}
+    <section class="panel-grid">
+        <article class="panel">
+            <div class="panel-heading">
+                <h3>Most Annotated Tasks</h3>
+                <span>Tasks with the highest note activity</span>
+            </div>
+            <div class="stack-list">
+                {% for task in task_notes %}
+                    <div class="stack-item">
+                        <div>
+                            <strong>{{ task.title }}</strong>
+                            <p>{{ task.category }} . {{ task.priority }}</p>
+                        </div>
+                        <span>{{ task.note_total }} notes</span>
+                    </div>
+                {% empty %}
+                    <p class="empty-copy">Add notes to see activity here.</p>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="panel">
+            <div class="panel-heading">
+                <h3>Quick Actions</h3>
+                <span>Work from the same backend in either interface</span>
+            </div>
+            <div class="action-stack">
+                <a class="action-link primary block" href="{% url 'admin:planner_note_add' %}">Create Note in Admin</a>
+                <a class="action-link block" href="{% url 'admin:index' %}">Open Django Admin</a>
+            </div>
+        </article>
+    </section>
+
+    <section class="notes-grid">
+        {% for note in notes %}
+            <article class="note-card">
+                <div class="note-topline">
+                    <span class="status-chip tone-{% if note.task.status == 'Pending' %}pending{% elif note.task.status == 'In Progress' %}progress{% else %}complete{% endif %}">
+                        {{ note.task.status }}
+                    </span>
+                    <span>{{ note.created_at|date:"M d, Y h:i A" }}</span>
+                </div>
+                <h3>{{ note.task.title }}</h3>
+                <p class="note-meta">{{ note.task.category }} . {{ note.task.priority }}</p>
+                <p>{{ note.content }}</p>
+                <a class="text-link" href="{% url 'admin:planner_note_change' note.id %}">Edit note in admin</a>
+            </article>
+        {% empty %}
+            <section class="panel empty-state">
+                <h3>No notes yet</h3>
+                <p>Seed data or create notes in Django admin to populate the feed.</p>
+            </section>
+        {% endfor %}
+    </section>
+{% endblock %}
+

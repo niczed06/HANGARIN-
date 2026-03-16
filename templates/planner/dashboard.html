@@ -1,0 +1,158 @@
+{% extends "planner/base.html" %}
+
+{% block title %}Hangarin | Overview{% endblock %}
+{% block hero_title %}Overview{% endblock %}
+{% block hero_copy %}The frontend dashboard reads from the same Django models used by the admin, so changes stay in sync without a separate integration layer.{% endblock %}
+
+{% block content %}
+    <section class="hero-grid">
+        <article class="feature-panel">
+            <p class="eyebrow">Live workflow pulse</p>
+            <h3>Manage goals, deadlines, and notes from one shared backend.</h3>
+            <p>
+                Use Django admin for structured data entry, then monitor status, deadlines, and note activity here on the frontend.
+            </p>
+        </article>
+
+        <div class="stats-grid">
+            {% for card in overview_cards %}
+                <article class="stat-card">
+                    <p>{{ card.label }}</p>
+                    <strong>{{ card.value }}</strong>
+                    <span>{{ card.caption }}</span>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if nav_stats.task_count %}
+        <section class="panel-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <h3>Status Mix</h3>
+                    <span>Current task distribution</span>
+                </div>
+                <div class="status-list">
+                    {% for card in status_cards %}
+                        <div class="status-row">
+                            <span class="status-chip tone-{{ card.tone }}">{{ card.label }}</span>
+                            <strong>{{ card.count }}</strong>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <h3>Upcoming Deadlines</h3>
+                    <span>Next five tasks on the calendar</span>
+                </div>
+                <div class="stack-list">
+                    {% for task in upcoming_tasks %}
+                        <div class="stack-item">
+                            <div>
+                                <strong>{{ task.title }}</strong>
+                                <p>{{ task.category }} . {{ task.priority }}</p>
+                            </div>
+                            <span>{{ task.deadline|date:"M d, Y h:i A" }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="empty-copy">No future deadlines have been scheduled yet.</p>
+                    {% endfor %}
+                </div>
+            </article>
+        </section>
+
+        <section class="panel-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <h3>Category Focus</h3>
+                    <span>Top categories by volume</span>
+                </div>
+                <div class="tag-cloud">
+                    {% for item in category_summary %}
+                        <span class="tag">{{ item.category__name }} . {{ item.total }}</span>
+                    {% empty %}
+                        <p class="empty-copy">Add tasks to see category volume.</p>
+                    {% endfor %}
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <h3>Priority Load</h3>
+                    <span>How the work is weighted</span>
+                </div>
+                <div class="tag-cloud">
+                    {% for item in priority_summary %}
+                        <span class="tag">{{ item.priority__name }} . {{ item.total }}</span>
+                    {% empty %}
+                        <p class="empty-copy">Add tasks to see priority spread.</p>
+                    {% endfor %}
+                </div>
+            </article>
+        </section>
+
+        <section class="panel-grid">
+            <article class="panel">
+                <div class="panel-heading">
+                    <h3>Recently Updated Tasks</h3>
+                    <span>Latest changes from the shared workspace</span>
+                </div>
+                <div class="table-wrap">
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Status</th>
+                                <th>Deadline</th>
+                                <th>Subtasks</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in recent_tasks %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ task.title }}</strong>
+                                        <p>{{ task.category }} . {{ task.priority }}</p>
+                                    </td>
+                                    <td><span class="status-chip tone-{% if task.status == 'Pending' %}pending{% elif task.status == 'In Progress' %}progress{% else %}complete{% endif %}">{{ task.status }}</span></td>
+                                    <td>{{ task.deadline|date:"M d, Y" }}</td>
+                                    <td>{{ task.completed_subtasks }}/{{ task.subtask_total }}</td>
+                                    <td>{{ task.note_total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-heading">
+                    <h3>Recent Notes</h3>
+                    <span>Most recent admin or seeded entries</span>
+                </div>
+                <div class="note-stream">
+                    {% for note in recent_notes %}
+                        <article class="note-card compact">
+                            <strong>{{ note.task.title }}</strong>
+                            <p>{{ note.content|truncatechars:120 }}</p>
+                            <span>{{ note.created_at|date:"M d, Y h:i A" }}</span>
+                        </article>
+                    {% endfor %}
+                </div>
+            </article>
+        </section>
+    {% else %}
+        <section class="panel empty-state">
+            <h3>No task data yet</h3>
+            <p>Run the seed command or add records in Django admin to populate the dashboard.</p>
+            <div class="header-actions">
+                <a class="action-link primary" href="{% url 'admin:index' %}">Open Admin</a>
+                <a class="action-link" href="{% url 'admin:planner_task_add' %}">Create First Task</a>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}
+
