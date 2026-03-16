@@ -783,18 +783,28 @@ h3 {
 }
 
 .social-auth-layout {
-    width: min(100%, 430px);
+    width: min(100%, 480px);
 }
 
 .social-auth-panel {
-    gap: 18px;
-    padding: 20px;
+    display: grid;
+    justify-items: center;
+    gap: 20px;
+    padding: 26px 24px 24px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.66));
+    border-color: rgba(255, 255, 255, 0.42);
+    box-shadow:
+        0 26px 48px rgba(9, 17, 30, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.52);
+    backdrop-filter: blur(14px);
 }
 
 .social-auth-header {
+    width: 100%;
     display: grid;
     justify-items: center;
-    gap: 10px;
+    gap: 12px;
+    text-align: center;
 }
 
 .social-auth-header .login-kicker {
@@ -803,46 +813,50 @@ h3 {
 
 .social-auth-copy {
     display: grid;
-    gap: 10px;
+    width: 100%;
+    gap: 12px;
     justify-items: center;
     text-align: center;
-    max-width: 20rem;
+    max-width: 25rem;
 }
 
 .social-auth-copy h1 {
     margin: 0;
-    max-width: 13ch;
-    font-size: clamp(1.7rem, 4vw, 2.15rem);
-    line-height: 1;
+    max-width: 100%;
+    font-size: clamp(2rem, 4.8vw, 2.8rem);
+    letter-spacing: -0.04em;
+    line-height: 0.96;
     text-wrap: balance;
 }
 
 .social-auth-copy p {
     margin: 0;
-    max-width: 21ch;
-    font-size: 0.9rem;
+    max-width: 28ch;
+    font-size: 1rem;
     color: rgba(33, 48, 75, 0.82);
-    line-height: 1.5;
+    line-height: 1.58;
     text-wrap: balance;
 }
 
 .social-auth-badge {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    border-radius: 16px;
-    box-shadow: 0 12px 24px rgba(32, 47, 84, 0.14);
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    border-radius: 18px;
+    box-shadow: 0 14px 28px rgba(32, 47, 84, 0.16);
     display: block;
 }
 
 .social-auth-form,
 .social-auth-actions {
     width: 100%;
-    max-width: 320px;
+    max-width: 340px;
 }
 
 .social-auth-submit {
-    min-height: 46px;
+    width: 100%;
+    min-height: 48px;
+    box-shadow: 0 14px 28px rgba(72, 126, 241, 0.2);
 }
 
 .social-auth-actions {
@@ -854,11 +868,12 @@ h3 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    padding: 0 16px;
+    min-width: 176px;
+    min-height: 42px;
+    padding: 0 18px;
     border-radius: 14px;
     border: 1px solid rgba(177, 188, 214, 0.38);
-    background: rgba(255, 255, 255, 0.58);
+    background: rgba(255, 255, 255, 0.72);
     color: var(--ink);
     font-weight: 600;
     backdrop-filter: blur(8px);
