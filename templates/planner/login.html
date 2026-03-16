@@ -10,19 +10,19 @@
         {% inline_css 'planner/css/dashboard.css' %}
     </style>
 </head>
-<body class="login-body">
+<body
+    class="login-body"
+    style="
+        --login-bg-image: url('{% static 'planner/media/login-bg.gif' %}');
+        --google-icon-image: url('{% static 'planner/media/google-mark.svg' %}');
+        --github-icon-image: url('{% static 'planner/media/github-mark.svg' %}');
+    "
+>
     <main class="login-layout">
         <section class="login-panel social-login-panel">
             <div class="login-header">
                 <span class="login-kicker">Hangarin</span>
                 <h1>Sign in</h1>
-                <p>Use your username and password, or continue with an available provider.</p>
-            </div>
-
-            <div class="login-tabs">
-                <span class="login-tab active">Username</span>
-                <span class="login-tab">Google</span>
-                <span class="login-tab">GitHub</span>
             </div>
 
             <form method="post" class="login-form">
@@ -59,32 +59,28 @@
             <div class="social-grid">
                 {% if google_login_available %}
                     <a class="social-btn" href="{% provider_login_url 'google' process='login' %}">
-                        <span class="social-icon google">G</span>
+                        <span class="social-icon google" aria-hidden="true"></span>
                         <span>Continue with Google</span>
                     </a>
                 {% else %}
                     <button type="button" class="social-btn is-disabled" disabled>
-                        <span class="social-icon google">G</span>
+                        <span class="social-icon google" aria-hidden="true"></span>
                         <span>Google not configured</span>
                     </button>
                 {% endif %}
 
                 {% if github_login_available %}
                     <a class="social-btn" href="{% provider_login_url 'github' process='login' %}">
-                        <span class="social-icon github">GH</span>
+                        <span class="social-icon github" aria-hidden="true"></span>
                         <span>Continue with GitHub</span>
                     </a>
                 {% else %}
                     <button type="button" class="social-btn is-disabled" disabled>
-                        <span class="social-icon github">GH</span>
+                        <span class="social-icon github" aria-hidden="true"></span>
                         <span>GitHub not configured</span>
                     </button>
                 {% endif %}
             </div>
-
-            <p class="social-help">
-                To activate Google and GitHub login, configure provider credentials in environment variables or create SocialApp records in Django admin.
-            </p>
         </section>
     </main>
 </body>

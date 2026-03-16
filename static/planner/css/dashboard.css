@@ -592,6 +592,9 @@ h3 {
     align-items: center;
     justify-content: center;
     padding: 24px;
+    background:
+        linear-gradient(180deg, rgba(18, 29, 51, 0.58), rgba(18, 29, 51, 0.42)),
+        var(--login-bg-image) center center / cover no-repeat fixed;
 }
 
 .login-layout {
@@ -602,9 +605,10 @@ h3 {
 .login-panel {
     padding: 28px;
     border-radius: 26px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.76);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.55);
     box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
 }
 
 .login-kicker {
@@ -620,12 +624,6 @@ h3 {
     margin-bottom: 8px;
     font-size: clamp(2rem, 4vw, 2.5rem);
     color: var(--ink);
-}
-
-.login-header p {
-    margin: 0;
-    color: var(--muted-dark);
-    line-height: 1.6;
 }
 
 .social-login-panel {
@@ -645,31 +643,6 @@ h3 {
 
 .login-header {
     text-align: center;
-}
-
-.login-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.login-tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 32px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: rgba(93, 85, 247, 0.08);
-    color: var(--muted);
-    font-size: 0.76rem;
-    font-weight: 700;
-}
-
-.login-tab.active {
-    color: var(--primary);
-    background: rgba(93, 85, 247, 0.14);
 }
 
 .login-form {
@@ -789,25 +762,20 @@ h3 {
     min-width: 34px;
     height: 34px;
     border-radius: 12px;
-    color: #ffffff;
-    font-size: 0.74rem;
-    font-weight: 800;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 18px 18px;
 }
 
 .social-icon.google {
-    background: linear-gradient(135deg, #ea4335 0%, #fbbc05 100%);
+    background-color: rgba(255, 255, 255, 0.96);
+    background-image: var(--google-icon-image);
+    box-shadow: inset 0 0 0 1px rgba(177, 188, 214, 0.28);
 }
 
 .social-icon.github {
-    background: linear-gradient(135deg, #24292f 0%, #59636f 100%);
-}
-
-.social-help {
-    margin-bottom: 0;
-    color: var(--muted);
-    font-size: 0.82rem;
-    line-height: 1.6;
-    text-align: center;
+    background-color: #24292f;
+    background-image: var(--github-icon-image);
 }
 
 @media (max-width: 1240px) {
