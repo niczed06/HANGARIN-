@@ -1,0 +1,48 @@
+{% extends "planner/base.html" %}
+
+{% block title %}Hangarin | Priorities{% endblock %}
+{% block hero_title %}Priorities{% endblock %}
+{% block hero_copy %}See how workload and urgency are distributed across all priority levels from the shared Django backend.{% endblock %}
+
+{% block content %}
+    <section class="entity-grid">
+        {% for priority in priorities %}
+            <article class="entity-card">
+                <div class="entity-card-head">
+                    <h3>{{ priority.name }}</h3>
+                    <span class="entity-count">{{ priority.task_total }}</span>
+                </div>
+                <div class="entity-stats">
+                    <div><span>Open</span><strong>{{ priority.open_total }}</strong></div>
+                    <div><span>Completed</span><strong>{{ priority.completed_total }}</strong></div>
+                    <div><span>Overdue</span><strong>{{ priority.overdue_total }}</strong></div>
+                </div>
+            </article>
+        {% empty %}
+            <article class="panel empty-state">
+                <h3>No priorities yet</h3>
+                <p>Add priorities in admin or run the seed command.</p>
+            </article>
+        {% endfor %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h3>Upcoming by Priority</h3>
+            <span>First ten upcoming tasks across all levels</span>
+        </div>
+        <div class="stack-list">
+            {% for task in priority_tasks %}
+                <div class="stack-item">
+                    <div>
+                        <strong>{{ task.title }}</strong>
+                        <p>{{ task.priority }} . {{ task.category }}</p>
+                    </div>
+                    <span>{{ task.deadline|date:"M d, Y h:i A" }}</span>
+                </div>
+            {% empty %}
+                <p class="empty-copy">No upcoming tasks yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

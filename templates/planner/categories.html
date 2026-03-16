@@ -1,0 +1,61 @@
+{% extends "planner/base.html" %}
+
+{% block title %}Hangarin | Categories{% endblock %}
+{% block hero_title %}Categories{% endblock %}
+{% block hero_copy %}Review how work is distributed across categories, with counts derived directly from the shared task records.{% endblock %}
+
+{% block content %}
+    <section class="entity-grid">
+        {% for category in categories %}
+            <article class="entity-card">
+                <div class="entity-card-head">
+                    <h3>{{ category.name }}</h3>
+                    <span class="entity-count">{{ category.task_total }}</span>
+                </div>
+                <div class="entity-stats">
+                    <div><span>Open</span><strong>{{ category.open_total }}</strong></div>
+                    <div><span>Completed</span><strong>{{ category.completed_total }}</strong></div>
+                </div>
+            </article>
+        {% empty %}
+            <article class="panel empty-state">
+                <h3>No categories yet</h3>
+                <p>Add categories in admin or run the seed command.</p>
+            </article>
+        {% endfor %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h3>Most Active Tasks</h3>
+            <span>Sorted by note and subtask activity</span>
+        </div>
+        <div class="table-wrap">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Category</th>
+                        <th>Subtasks</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in busiest_tasks %}
+                        <tr>
+                            <td>{{ task.title }}</td>
+                            <td>{{ task.category }}</td>
+                            <td>{{ task.subtask_total }}</td>
+                            <td>{{ task.note_total }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No tasks available.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}
+

@@ -50,6 +50,7 @@ class PlannerViewTests(TestCase):
             category=category,
         )
         Note.objects.create(task=task, content="Admin changes should appear on the frontend.")
+        SubTask.objects.create(task=task, title="Prepare sidebar preview")
 
     def test_dashboard_renders_shared_task_data(self):
         response = self.client.get(reverse("planner:dashboard"))
@@ -57,13 +58,26 @@ class PlannerViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Publish schedule")
         self.assertContains(response, "Overview")
-        self.assertContains(response, "--bg: #f4efe7;")
+        self.assertContains(response, "Dashboard")
+        self.assertContains(response, "SubTasks")
+        self.assertContains(response, "--sidebar: #1b2646;")
 
     def test_task_board_page_is_available(self):
         response = self.client.get(reverse("planner:tasks"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Pending")
+
+    def test_additional_navigation_pages_are_available(self):
+        for route_name, expected in [
+            ("planner:subtasks", "Recent SubTasks"),
+            ("planner:categories", "Categories"),
+            ("planner:priorities", "Priorities"),
+            ("planner:notes", "Notes Feed"),
+        ]:
+            response = self.client.get(reverse(route_name))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, expected)
 
 
 class SeedCommandTests(TestCase):
