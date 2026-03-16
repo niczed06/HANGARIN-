@@ -1,4 +1,4 @@
-{% load static %}
+{% load inline_assets static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Hangarin{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'planner/css/dashboard.css' %}">
+    <style>
+        {% inline_css 'planner/css/dashboard.css' %}
+    </style>
 </head>
 <body>
     <div class="app-shell">
@@ -73,4 +76,3 @@
     </div>
 </body>
 </html>
-

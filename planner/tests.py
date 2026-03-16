@@ -57,6 +57,7 @@ class PlannerViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Publish schedule")
         self.assertContains(response, "Overview")
+        self.assertContains(response, "--bg: #f4efe7;")
 
     def test_task_board_page_is_available(self):
         response = self.client.get(reverse("planner:tasks"))
