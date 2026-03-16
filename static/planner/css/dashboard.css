@@ -791,13 +791,36 @@ h3 {
 }
 
 .social-auth-header {
+    display: grid;
+    justify-items: center;
     gap: 14px;
 }
 
-.social-auth-header p {
+.social-auth-header .login-kicker {
+    margin-bottom: 0;
+}
+
+.social-auth-copy {
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+    text-align: center;
+    max-width: 24rem;
+}
+
+.social-auth-copy h1 {
     margin: 0;
+    max-width: 12ch;
+    line-height: 0.96;
+    text-wrap: balance;
+}
+
+.social-auth-copy p {
+    margin: 0;
+    max-width: 22ch;
     color: rgba(33, 48, 75, 0.82);
-    line-height: 1.65;
+    line-height: 1.55;
+    text-wrap: balance;
 }
 
 .social-auth-badge {
@@ -806,6 +829,7 @@ h3 {
     min-width: 56px;
     border-radius: 18px;
     box-shadow: 0 14px 30px rgba(32, 47, 84, 0.14);
+    display: block;
 }
 
 .social-auth-form,

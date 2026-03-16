@@ -21,15 +21,17 @@
     <main class="login-layout social-auth-layout">
         <section class="login-panel social-auth-panel">
             <div class="login-header social-auth-header">
-                <span class="login-kicker">Hangarin</span>
                 <span class="social-auth-badge social-icon {{ provider.id }}" aria-hidden="true"></span>
-                {% if process == "connect" %}
-                    <h1>Connect {{ provider.name }}</h1>
-                    <p>Link your {{ provider.name }} account to Hangarin so you can use it the next time you sign in.</p>
-                {% else %}
-                    <h1>Continue with {{ provider.name }}</h1>
-                    <p>Confirm to continue the sign-in flow using your {{ provider.name }} account.</p>
-                {% endif %}
+                <span class="login-kicker">Hangarin</span>
+                <div class="social-auth-copy">
+                    {% if process == "connect" %}
+                        <h1>Connect {{ provider.name }}</h1>
+                        <p>Link your {{ provider.name }} account to Hangarin so you can use it the next time you sign in.</p>
+                    {% else %}
+                        <h1>Continue with {{ provider.name }}</h1>
+                        <p>Confirm to continue the sign-in flow using your {{ provider.name }} account.</p>
+                    {% endif %}
+                </div>
             </div>
 
             <form method="post" class="social-auth-form">
