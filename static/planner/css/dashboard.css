@@ -594,10 +594,7 @@ h3 {
 }
 
 .login-layout {
-    display: grid;
-    grid-template-columns: minmax(280px, 1fr) minmax(320px, 460px);
-    gap: 18px;
-    width: min(100%, 980px);
+    width: min(100%, 460px);
 }
 
 .login-panel {
@@ -605,14 +602,6 @@ h3 {
     border-radius: 26px;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.76);
-    box-shadow: var(--shadow);
-}
-
-.login-aside {
-    padding: 34px 30px;
-    border-radius: 26px;
-    background: linear-gradient(135deg, #23355f 0%, #38539a 100%);
-    color: #ffffff;
     box-shadow: var(--shadow);
 }
 
@@ -625,43 +614,16 @@ h3 {
     color: var(--muted);
 }
 
-.login-aside .login-kicker {
-    color: rgba(237, 243, 255, 0.76);
+.login-header h1 {
+    margin-bottom: 8px;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    color: var(--ink);
 }
 
-.login-aside h1 {
-    margin-bottom: 12px;
-    font-size: 2.6rem;
-}
-
-.login-aside p {
-    margin-bottom: 0;
-    color: rgba(236, 242, 255, 0.84);
-    line-height: 1.7;
-}
-
-.login-bullets {
-    display: grid;
-    gap: 14px;
-    margin-top: 28px;
-}
-
-.login-bullet {
-    padding: 16px 18px;
-    border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.07);
-}
-
-.login-bullet strong {
-    display: block;
-    margin-bottom: 6px;
-}
-
-.login-bullet span {
-    color: rgba(236, 242, 255, 0.78);
-    font-size: 0.88rem;
-    line-height: 1.55;
+.login-header p {
+    margin: 0;
+    color: var(--muted-dark);
+    line-height: 1.6;
 }
 
 .social-login-panel {
