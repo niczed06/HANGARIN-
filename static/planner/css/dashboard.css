@@ -593,22 +593,22 @@ h3 {
     justify-content: center;
     padding: 24px;
     background:
-        linear-gradient(180deg, rgba(18, 29, 51, 0.58), rgba(18, 29, 51, 0.42)),
+        linear-gradient(180deg, rgba(18, 29, 51, 0.4), rgba(18, 29, 51, 0.24)),
         var(--login-bg-image) center center / cover no-repeat fixed;
 }
 
 .login-layout {
-    width: min(100%, 520px);
+    width: min(100%, 470px);
     margin: 0 auto;
 }
 
 .login-panel {
-    padding: 28px;
-    border-radius: 26px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
+    padding: 24px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    box-shadow: 0 24px 44px rgba(9, 17, 30, 0.18);
+    backdrop-filter: blur(10px);
 }
 
 .login-kicker {
@@ -638,7 +638,7 @@ h3 {
 .social-grid,
 .social-help {
     width: 100%;
-    max-width: 420px;
+    max-width: 380px;
 }
 
 .login-header {
@@ -667,7 +667,7 @@ h3 {
     padding: 0 14px;
     border: 1px solid rgba(187, 198, 223, 0.42);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.74);
     color: var(--ink);
 }
 
@@ -729,12 +729,12 @@ h3 {
     align-items: center;
     gap: 12px;
     width: 100%;
-    max-width: 360px;
+    max-width: 332px;
     min-height: 48px;
     padding: 0 14px;
     border-radius: 16px;
     border: 1px solid rgba(177, 188, 214, 0.36);
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.76);
     color: var(--ink);
     font-weight: 700;
     text-align: center;
