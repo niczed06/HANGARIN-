@@ -46,14 +46,10 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.github",
     "planner",
 ]
-
-if GOOGLE_OAUTH_ENABLED:
-    INSTALLED_APPS.append("allauth.socialaccount.providers.google")
-
-if GITHUB_OAUTH_ENABLED:
-    INSTALLED_APPS.append("allauth.socialaccount.providers.github")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
