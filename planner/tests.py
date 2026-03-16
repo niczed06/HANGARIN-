@@ -1,7 +1,10 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from datetime import timedelta
 
 from django.core.management import call_command
+from django.db.utils import OperationalError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -98,6 +101,14 @@ class PlannerViewTests(TestCase):
         self.assertContains(response, "Google")
         self.assertContains(response, "GitHub")
         self.assertContains(response, "Continue with")
+
+    def test_login_page_renders_without_sites_table(self):
+        self.client.logout()
+        with patch("planner.views.get_current_site", side_effect=OperationalError("no such table: django_site")):
+            response = self.client.get(reverse("planner:login"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hangarin")
 
     def test_dashboard_requires_login(self):
         self.client.logout()

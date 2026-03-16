@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sites.requests import RequestSite
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.db.utils import OperationalError, ProgrammingError
@@ -98,9 +99,16 @@ class PlannerLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super(LoginView, self).get_context_data(**kwargs)
+        try:
+            current_site = get_current_site(self.request)
+        except (OperationalError, ProgrammingError):
+            current_site = RequestSite(self.request)
         context.update(
             {
+                self.redirect_field_name: self.get_redirect_url(),
+                "site": current_site,
+                "site_name": current_site.name,
                 "google_login_available": provider_is_configured(self.request, "google"),
                 "github_login_available": provider_is_configured(self.request, "github"),
             }
