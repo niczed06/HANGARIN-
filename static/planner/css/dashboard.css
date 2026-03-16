@@ -588,13 +588,15 @@ h3 {
 }
 
 .login-body {
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 24px;
 }
 
 .login-layout {
-    width: min(100%, 460px);
+    width: min(100%, 520px);
+    margin: 0 auto;
 }
 
 .login-panel {
@@ -629,12 +631,27 @@ h3 {
 .social-login-panel {
     display: grid;
     gap: 18px;
+    justify-items: center;
+}
+
+.login-header,
+.login-form,
+.social-separator,
+.social-grid,
+.social-help {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-header {
+    text-align: center;
 }
 
 .login-tabs {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .login-tab {
@@ -694,6 +711,7 @@ h3 {
 }
 
 .login-submit {
+    width: 100%;
     min-height: 46px;
     border: 0;
     border-radius: 14px;
@@ -729,12 +747,16 @@ h3 {
 .social-grid {
     display: grid;
     gap: 12px;
+    justify-items: center;
 }
 
 .social-btn {
-    display: flex;
+    display: grid;
+    grid-template-columns: 34px 1fr 34px;
     align-items: center;
     gap: 12px;
+    width: 100%;
+    max-width: 360px;
     min-height: 48px;
     padding: 0 14px;
     border-radius: 16px;
@@ -742,6 +764,17 @@ h3 {
     background: rgba(255, 255, 255, 0.92);
     color: var(--ink);
     font-weight: 700;
+    text-align: center;
+}
+
+.social-btn::after {
+    content: "";
+    width: 34px;
+    height: 34px;
+}
+
+.social-btn span:last-child {
+    justify-self: center;
 }
 
 .social-btn.is-disabled {
@@ -774,6 +807,7 @@ h3 {
     color: var(--muted);
     font-size: 0.82rem;
     line-height: 1.6;
+    text-align: center;
 }
 
 @media (max-width: 1240px) {
