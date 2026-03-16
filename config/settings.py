@@ -16,6 +16,25 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+
+def _is_enabled(env_name):
+    return os.environ.get(env_name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _has_oauth_credentials(client_id_env, secret_env):
+    return bool(
+        os.environ.get(client_id_env, "").strip()
+        and os.environ.get(secret_env, "").strip()
+    )
+
+
+GOOGLE_OAUTH_ENABLED = _is_enabled("ENABLE_GOOGLE_OAUTH") or _has_oauth_credentials(
+    "GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_SECRET"
+)
+GITHUB_OAUTH_ENABLED = _is_enabled("ENABLE_GITHUB_OAUTH") or _has_oauth_credentials(
+    "GITHUB_OAUTH_CLIENT_ID", "GITHUB_OAUTH_SECRET"
+)
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -27,10 +46,14 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "allauth.socialaccount.providers.github",
-    "allauth.socialaccount.providers.google",
     "planner",
 ]
+
+if GOOGLE_OAUTH_ENABLED:
+    INSTALLED_APPS.append("allauth.socialaccount.providers.google")
+
+if GITHUB_OAUTH_ENABLED:
+    INSTALLED_APPS.append("allauth.socialaccount.providers.github")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

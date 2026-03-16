@@ -71,6 +71,10 @@ def get_display_name(user):
 
 
 def provider_is_configured(request, provider_id):
+    provider_app = f"allauth.socialaccount.providers.{provider_id}"
+    if not apps.is_installed(provider_app):
+        return False
+
     provider_settings = settings.SOCIALACCOUNT_PROVIDERS.get(provider_id, {})
     if provider_settings.get("APPS") or provider_settings.get("APP"):
         return True
