@@ -56,7 +56,7 @@
                                     <span class="table-secondary">{{ priority.updated_at|date:"h:i A" }}</span>
                                 </div>
                             </td>
-                            <td><a class="table-action" href="{% url 'admin:planner_priority_change' priority.id %}">Edit</a></td>
+                            <td><a class="table-action" href="{% url 'planner:priority-edit' priority.id %}">Edit</a></td>
                         </tr>
                     {% empty %}
                         <tr>

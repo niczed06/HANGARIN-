@@ -55,7 +55,7 @@
                                     <span class="table-secondary">{{ category.updated_at|date:"h:i A" }}</span>
                                 </div>
                             </td>
-                            <td><a class="table-action" href="{% url 'admin:planner_category_change' category.id %}">Edit</a></td>
+                            <td><a class="table-action" href="{% url 'planner:category-edit' category.id %}">Edit</a></td>
                         </tr>
                     {% empty %}
                         <tr>

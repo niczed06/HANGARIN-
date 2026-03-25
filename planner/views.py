@@ -11,7 +11,7 @@ from django.db.models import Count, Q
 from django.db.utils import OperationalError, ProgrammingError
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, UpdateView
 
 from .forms import CategoryForm, NoteForm, PriorityForm, SubTaskForm, TaskForm
 from .models import Category, Note, Priority, SubTask, Task
@@ -160,6 +160,28 @@ class PlannerCreateView(PlannerShellMixin, CreateView):
     form_intro = ""
     form_kicker = "Create"
     submit_label = "Save"
+    cancel_url = reverse_lazy("planner:dashboard")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "form_heading": self.form_heading,
+                "form_intro": self.form_intro,
+                "form_kicker": self.form_kicker,
+                "submit_label": self.submit_label,
+                "cancel_url": self.cancel_url,
+            }
+        )
+        return context
+
+
+class PlannerUpdateView(PlannerShellMixin, UpdateView):
+    template_name = "planner/form.html"
+    form_heading = ""
+    form_intro = ""
+    form_kicker = "EDITOR"
+    submit_label = "Save Changes"
     cancel_url = reverse_lazy("planner:dashboard")
 
     def get_context_data(self, **kwargs):
@@ -476,4 +498,44 @@ class NoteCreateView(PlannerCreateView):
     model = Note
     form_class = NoteForm
     form_heading = "Create Note"
+    success_url = reverse_lazy("planner:notes")
+
+
+class TaskUpdateView(PlannerUpdateView):
+    model = Task
+    form_class = TaskForm
+    form_heading = "Edit Task"
+    form_intro = "Update task details without leaving the dashboard frontend."
+    success_url = reverse_lazy("planner:tasks")
+
+
+class SubTaskUpdateView(PlannerUpdateView):
+    model = SubTask
+    form_class = SubTaskForm
+    form_heading = "Edit Sub Task"
+    form_intro = "Modify an existing sub task linked to its parent."
+    success_url = reverse_lazy("planner:subtasks")
+
+
+class CategoryUpdateView(PlannerUpdateView):
+    model = Category
+    form_class = CategoryForm
+    form_heading = "Edit Category"
+    form_intro = "Update category name or details."
+    success_url = reverse_lazy("planner:categories")
+
+
+class PriorityUpdateView(PlannerUpdateView):
+    model = Priority
+    form_class = PriorityForm
+    form_heading = "Edit Priority"
+    form_intro = "Adjust priority levels."
+    success_url = reverse_lazy("planner:priorities")
+
+
+class NoteUpdateView(PlannerUpdateView):
+    model = Note
+    form_class = NoteForm
+    form_heading = "Edit Note"
+    form_intro = "Update the contents of an existing note."
     success_url = reverse_lazy("planner:notes")

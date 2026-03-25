@@ -62,7 +62,7 @@
                                     <span class="table-secondary">{{ subtask.updated_at|date:"h:i A" }}</span>
                                 </div>
                             </td>
-                            <td><a class="table-action" href="{% url 'admin:planner_subtask_change' subtask.id %}">Edit</a></td>
+                            <td><a class="table-action" href="{% url 'planner:subtask-edit' subtask.id %}">Edit</a></td>
                         </tr>
                     {% empty %}
                         <tr>

@@ -68,7 +68,7 @@
                                     <span class="table-secondary">{{ note.updated_at|date:"h:i A" }}</span>
                                 </div>
                             </td>
-                            <td><a class="table-action" href="{% url 'admin:planner_note_change' note.id %}">Edit</a></td>
+                            <td><a class="table-action" href="{% url 'planner:note-edit' note.id %}">Edit</a></td>
                         </tr>
                     {% empty %}
                         <tr>
