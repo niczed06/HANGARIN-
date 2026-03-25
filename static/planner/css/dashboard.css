@@ -461,12 +461,19 @@ h3 {
     position: relative;
     overflow: hidden;
     color: #fbf8f3;
+    border-radius: 24px;
     background: 
         radial-gradient(circle at top right, rgba(123, 185, 223, 0.15), transparent 40%),
         radial-gradient(circle at bottom left, rgba(231, 178, 90, 0.15), transparent 40%),
-        linear-gradient(135deg, #111827 0%, #1e293b 40%, #0f172a 100%);
+        linear-gradient(135deg, #111827 0%, #1e293b 40%, #0f172a 100%) !important;
     box-shadow: var(--shadow-md);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .hero-banner::after {
