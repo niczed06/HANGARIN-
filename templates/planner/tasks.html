@@ -4,9 +4,16 @@
 
 {% block content %}
     <section class="section-card page-section">
-        <div class="section-head">
-            <h2>Tasks</h2>
-            <a class="section-action" href="{% url 'admin:planner_task_add' %}">Add Task</a>
+        <div class="section-head section-head-page">
+            <div>
+                <span class="section-kicker">Execution Board</span>
+                <h2>Tasks</h2>
+                <p class="section-copy">Track delivery, category, priority, and deadlines from one operational view.</p>
+            </div>
+            <div class="section-head-actions">
+                <span class="section-pill">Live records</span>
+                <a class="section-action" href="{{ primary_action_url }}">{{ primary_action_label }}</a>
+            </div>
         </div>
 
         <section class="summary-grid">
@@ -39,12 +46,27 @@
                 <tbody>
                     {% for task in tasks %}
                         <tr>
-                            <td>{{ task.title }}</td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ task.title }}</strong>
+                                    <span class="table-secondary">{{ task.description|truncatechars:92 }}</span>
+                                </div>
+                            </td>
                             <td><span class="status-pill tone-{% if task.status == 'Pending' %}pending{% elif task.status == 'In Progress' %}progress{% else %}complete{% endif %}">{{ task.status }}</span></td>
-                            <td>{{ task.category }}</td>
-                            <td>{{ task.priority }}</td>
-                            <td>{{ task.deadline|date:"M d, Y - h:i A" }}</td>
-                            <td>{{ task.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td><span class="inline-pill">{{ task.category }}</span></td>
+                            <td><span class="inline-pill">{{ task.priority }}</span></td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ task.deadline|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ task.deadline|date:"h:i A" }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ task.updated_at|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ task.updated_at|date:"h:i A" }}</span>
+                                </div>
+                            </td>
                             <td><a class="table-action" href="{% url 'admin:planner_task_change' task.id %}">Edit</a></td>
                         </tr>
                     {% empty %}

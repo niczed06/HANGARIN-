@@ -4,9 +4,16 @@
 
 {% block content %}
     <section class="section-card page-section">
-        <div class="section-head">
-            <h2>Sub Tasks</h2>
-            <a class="section-action" href="{% url 'admin:planner_subtask_add' %}">Add SubTask</a>
+        <div class="section-head section-head-page">
+            <div>
+                <span class="section-kicker">Execution Details</span>
+                <h2>Sub Tasks</h2>
+                <p class="section-copy">Break larger work into smaller, trackable actions with a clear parent task.</p>
+            </div>
+            <div class="section-head-actions">
+                <span class="section-pill">Task breakdown</span>
+                <a class="section-action" href="{{ primary_action_url }}">{{ primary_action_label }}</a>
+            </div>
         </div>
 
         <section class="summary-grid">
@@ -37,10 +44,25 @@
                 <tbody>
                     {% for subtask in subtasks %}
                         <tr>
-                            <td>{{ subtask.title }}</td>
-                            <td>{{ subtask.task.title }}</td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ subtask.title }}</strong>
+                                    <span class="table-secondary">Attached execution item</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ subtask.task.title }}</strong>
+                                    <span class="table-secondary">{{ subtask.task.category }} / {{ subtask.task.priority }}</span>
+                                </div>
+                            </td>
                             <td><span class="status-pill tone-{% if subtask.status == 'Pending' %}pending{% elif subtask.status == 'In Progress' %}progress{% else %}complete{% endif %}">{{ subtask.status }}</span></td>
-                            <td>{{ subtask.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ subtask.updated_at|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ subtask.updated_at|date:"h:i A" }}</span>
+                                </div>
+                            </td>
                             <td><a class="table-action" href="{% url 'admin:planner_subtask_change' subtask.id %}">Edit</a></td>
                         </tr>
                     {% empty %}

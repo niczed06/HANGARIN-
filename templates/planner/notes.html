@@ -4,9 +4,16 @@
 
 {% block content %}
     <section class="section-card page-section">
-        <div class="section-head">
-            <h2>Notes</h2>
-            <a class="section-action" href="{% url 'admin:planner_note_add' %}">Add Note</a>
+        <div class="section-head section-head-page">
+            <div>
+                <span class="section-kicker">Context</span>
+                <h2>Notes</h2>
+                <p class="section-copy">Capture supporting details, reminders, and decision context next to the work itself.</p>
+            </div>
+            <div class="section-head-actions">
+                <span class="section-pill">Working memory</span>
+                <a class="section-action" href="{{ primary_action_url }}">{{ primary_action_label }}</a>
+            </div>
         </div>
 
         <section class="summary-grid split-two">
@@ -37,10 +44,30 @@
                 <tbody>
                     {% for note in notes %}
                         <tr>
-                            <td>{{ note.task.title }}</td>
-                            <td>{{ note.content|truncatechars:120 }}</td>
-                            <td>{{ note.created_at|date:"M d, Y - h:i A" }}</td>
-                            <td>{{ note.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ note.task.title }}</strong>
+                                    <span class="table-secondary">{{ note.task.category }} / {{ note.task.priority }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">Note</strong>
+                                    <span class="table-secondary">{{ note.content|truncatechars:120 }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ note.created_at|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ note.created_at|date:"h:i A" }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ note.updated_at|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ note.updated_at|date:"h:i A" }}</span>
+                                </div>
+                            </td>
                             <td><a class="table-action" href="{% url 'admin:planner_note_change' note.id %}">Edit</a></td>
                         </tr>
                     {% empty %}

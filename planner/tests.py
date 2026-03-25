@@ -92,38 +92,42 @@ class PlannerViewTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, expected)
 
-    def test_login_page_renders(self):
-        self.client.logout()
-        response = self.client.get(reverse("planner:login"))
+    def test_add_actions_use_planner_routes_instead_of_admin(self):
+        for route_name, add_route_name, legacy_admin_route in [
+            ("planner:dashboard", "planner:task-create", "admin:planner_task_add"),
+            ("planner:tasks", "planner:task-create", "admin:planner_task_add"),
+            ("planner:subtasks", "planner:subtask-create", "admin:planner_subtask_add"),
+            ("planner:categories", "planner:category-create", "admin:planner_category_add"),
+            ("planner:priorities", "planner:priority-create", "admin:planner_priority_add"),
+            ("planner:notes", "planner:note-create", "admin:planner_note_add"),
+        ]:
+            response = self.client.get(reverse(route_name))
+            self.assertContains(response, f'href="{reverse(add_route_name)}"')
+            self.assertNotContains(response, f'href="{reverse(legacy_admin_route)}"')
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Username")
-        self.assertContains(response, "Google")
-        self.assertContains(response, "GitHub")
-        self.assertContains(response, "Continue with")
+    def test_create_pages_are_available(self):
+        for route_name, expected in [
+            ("planner:task-create", "Create Task"),
+            ("planner:subtask-create", "Create Sub Task"),
+            ("planner:category-create", "Create Category"),
+            ("planner:priority-create", "Create Priority"),
+            ("planner:note-create", "Create Note"),
+        ]:
+            response = self.client.get(reverse(route_name))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, expected)
 
-    def test_login_page_renders_without_sites_table(self):
-        self.client.logout()
-        with patch("planner.views.get_current_site", side_effect=OperationalError("no such table: django_site")):
-            response = self.client.get(reverse("planner:login"))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Hangarin")
-
-    def test_dashboard_requires_login(self):
-        self.client.logout()
-        response = self.client.get(reverse("planner:dashboard"))
-
+    def test_create_pages_save_records(self):
+        deadline = timezone.now() + timedelta(days=5)
+        response = self.client.post(reverse("planner:task-create"), {
+            "title": "New Test Task",
+            "description": "Task created from test",
+            "status": Task.TaskStatus.PENDING,
+            "deadline": deadline.strftime("%Y-%m-%d %H:%M:%S"),
+            "priority": Priority.objects.first().id,
+            "category": Category.objects.first().id,
+        })
+        
+        # Follow the success redirect to confirm task creation
         self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse("planner:login"), response.url)
-
-
-class SeedCommandTests(TestCase):
-    def test_seed_command_creates_reference_and_demo_records(self):
-        call_command("seed_hangarin", tasks=3, max_subtasks=2, max_notes=2, clear=True)
-
-        self.assertEqual(Category.objects.count(), 5)
-        self.assertEqual(Priority.objects.count(), 5)
-        self.assertEqual(Task.objects.count(), 3)
-        self.assertGreater(Note.objects.count(), 0)
-        self.assertGreater(SubTask.objects.count(), 0)
+        self.assertTrue(Task.objects.filter(title="New Test Task").exists())

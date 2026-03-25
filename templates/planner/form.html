@@ -1,0 +1,48 @@
+{% extends "planner/base.html" %}
+
+{% block title %}Hangarin | {{ page_title }}{% endblock %}
+
+{% block content %}
+    <section class="section-card page-section form-section">
+        <div class="section-head form-head">
+            <div>
+                <span class="section-kicker">{{ form_kicker }}</span>
+                <h2>{{ form_heading }}</h2>
+                <p class="form-copy">{{ form_intro }}</p>
+            </div>
+            <div class="section-head-actions">
+                <span class="section-pill">Planner form</span>
+                <a class="page-link" href="{{ cancel_url }}">Back</a>
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="form-error">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="record-form">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="field-group record-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="field-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="toolbar-btn primary">{{ submit_label }}</button>
+                <a class="toolbar-btn" href="{{ cancel_url }}">Cancel</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

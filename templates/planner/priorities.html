@@ -4,9 +4,16 @@
 
 {% block content %}
     <section class="section-card page-section">
-        <div class="section-head">
-            <h2>Priorities</h2>
-            <a class="section-action" href="{% url 'admin:planner_priority_add' %}">Add Priority</a>
+        <div class="section-head section-head-page">
+            <div>
+                <span class="section-kicker">Decision Signals</span>
+                <h2>Priorities</h2>
+                <p class="section-copy">Define urgency levels that help the team sort work and act on what matters first.</p>
+            </div>
+            <div class="section-head-actions">
+                <span class="section-pill">Work ranking</span>
+                <a class="section-action" href="{{ primary_action_url }}">{{ primary_action_label }}</a>
+            </div>
         </div>
 
         <section class="summary-grid split-two">
@@ -36,9 +43,19 @@
                 <tbody>
                     {% for priority in priorities %}
                         <tr>
-                            <td>{{ priority.name }}</td>
-                            <td>{{ priority.task_total }}</td>
-                            <td>{{ priority.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ priority.name }}</strong>
+                                    <span class="table-secondary">Priority label</span>
+                                </div>
+                            </td>
+                            <td><span class="inline-pill">{{ priority.task_total }} tagged</span></td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ priority.updated_at|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ priority.updated_at|date:"h:i A" }}</span>
+                                </div>
+                            </td>
                             <td><a class="table-action" href="{% url 'admin:planner_priority_change' priority.id %}">Edit</a></td>
                         </tr>
                     {% empty %}

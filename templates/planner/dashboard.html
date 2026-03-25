@@ -4,9 +4,28 @@
 
 {% block content %}
     <section class="hero-banner section-card">
-        <div class="hero-copy">
-            <h2>Welcome back, {{ welcome_name }}</h2>
-            <p>Today is {{ toolbar_date_long }}.</p>
+        <div class="hero-main">
+            <div class="hero-copy">
+                <span class="hero-kicker">Operations Desk</span>
+                <h2>Welcome back, {{ welcome_name }}</h2>
+                <p>Today is {{ toolbar_date_long }}. Stay on top of priorities, unblock active work, and keep deadlines visible without leaving the dashboard.</p>
+                <div class="hero-actions">
+                    <a class="hero-link is-primary" href="{% url 'planner:task-create' %}">Create Task</a>
+                    <a class="hero-link" href="{% url 'planner:tasks' %}">Open Task Board</a>
+                </div>
+            </div>
+            <div class="hero-spotlight">
+                <article class="hero-spotlight-card">
+                    <span>Open Tasks</span>
+                    <strong>{{ nav_stats.open_count }}</strong>
+                    <p>Items that are still moving through the board.</p>
+                </article>
+                <article class="hero-spotlight-card">
+                    <span>Due Today</span>
+                    <strong>{{ nav_stats.due_today }}</strong>
+                    <p>Deadlines that need attention before the day ends.</p>
+                </article>
+            </div>
         </div>
         <div class="hero-metrics">
             {% for item in hero_metrics %}
@@ -33,6 +52,7 @@
                 <div>
                     <span class="section-kicker">Status Flow</span>
                     <h2>Task Status Overview</h2>
+                    <p class="section-copy">See how current work is distributed across the execution pipeline.</p>
                 </div>
                 <span class="section-pill">Live completion mix</span>
             </div>
@@ -56,6 +76,7 @@
                 <div>
                     <span class="section-kicker">Category Loadout</span>
                     <h2>Top Categories</h2>
+                    <p class="section-copy">The categories carrying the heaviest share of active work.</p>
                 </div>
                 <span class="section-pill">Most active buckets</span>
             </div>
@@ -78,6 +99,7 @@
                 <div>
                     <span class="section-kicker">Recent Activity</span>
                     <h2>Latest Task Updates</h2>
+                    <p class="section-copy">Recently changed tasks so you can catch movement quickly.</p>
                 </div>
                 <span class="section-pill">Recently changed items</span>
             </div>
@@ -95,11 +117,21 @@
                     <tbody>
                         {% for task in recent_tasks %}
                             <tr>
-                                <td>{{ task.title }}</td>
+                                <td>
+                                    <div class="table-stack">
+                                        <strong class="table-primary">{{ task.title }}</strong>
+                                        <span class="table-secondary">{{ task.description|truncatechars:90 }}</span>
+                                    </div>
+                                </td>
                                 <td><span class="status-pill tone-{% if task.status == 'Pending' %}pending{% elif task.status == 'In Progress' %}progress{% else %}complete{% endif %}">{{ task.status }}</span></td>
-                                <td>{{ task.category }}</td>
-                                <td>{{ task.priority }}</td>
-                                <td>{{ task.updated_at|date:"M d, Y h:i A" }}</td>
+                                <td><span class="inline-pill">{{ task.category }}</span></td>
+                                <td><span class="inline-pill">{{ task.priority }}</span></td>
+                                <td>
+                                    <div class="table-stack">
+                                        <strong class="table-primary">{{ task.updated_at|date:"M d, Y" }}</strong>
+                                        <span class="table-secondary">{{ task.updated_at|date:"h:i A" }}</span>
+                                    </div>
+                                </td>
                             </tr>
                         {% empty %}
                             <tr>
@@ -116,6 +148,7 @@
                 <div>
                     <span class="section-kicker">Schedule Watch</span>
                     <h2>Upcoming Deadlines</h2>
+                    <p class="section-copy">The closest due dates, sorted so the next action is clear.</p>
                 </div>
                 <span class="section-pill">Closest due dates</span>
             </div>
@@ -124,7 +157,7 @@
                     <div class="schedule-item">
                         <div>
                             <strong>{{ task.title }}</strong>
-                            <span>{{ task.deadline|date:"M d, Y h:i A" }}</span>
+                            <span>{{ task.category }} / {{ task.deadline|date:"M d, Y h:i A" }}</span>
                         </div>
                         <span class="status-pill tone-{% if task.status == 'Pending' %}pending{% elif task.status == 'In Progress' %}progress{% else %}complete{% endif %}">{{ task.status }}</span>
                     </div>

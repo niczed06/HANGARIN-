@@ -4,9 +4,16 @@
 
 {% block content %}
     <section class="section-card page-section">
-        <div class="section-head">
-            <h2>Categories</h2>
-            <a class="section-action" href="{% url 'admin:planner_category_add' %}">Add Category</a>
+        <div class="section-head section-head-page">
+            <div>
+                <span class="section-kicker">Structure</span>
+                <h2>Categories</h2>
+                <p class="section-copy">Organize tasks into clear workstreams so the dashboard stays readable at scale.</p>
+            </div>
+            <div class="section-head-actions">
+                <span class="section-pill">Shared taxonomy</span>
+                <a class="section-action" href="{{ primary_action_url }}">{{ primary_action_label }}</a>
+            </div>
         </div>
 
         <section class="summary-grid split-two">
@@ -36,9 +43,19 @@
                 <tbody>
                     {% for category in categories %}
                         <tr>
-                            <td>{{ category.name }}</td>
-                            <td>{{ category.task_total }}</td>
-                            <td>{{ category.updated_at|date:"M d, Y - h:i A" }}</td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ category.name }}</strong>
+                                    <span class="table-secondary">Task grouping label</span>
+                                </div>
+                            </td>
+                            <td><span class="inline-pill">{{ category.task_total }} linked</span></td>
+                            <td>
+                                <div class="table-stack">
+                                    <strong class="table-primary">{{ category.updated_at|date:"M d, Y" }}</strong>
+                                    <span class="table-secondary">{{ category.updated_at|date:"h:i A" }}</span>
+                                </div>
+                            </td>
                             <td><a class="table-action" href="{% url 'admin:planner_category_change' category.id %}">Edit</a></td>
                         </tr>
                     {% empty %}

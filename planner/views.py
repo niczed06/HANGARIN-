@@ -11,8 +11,9 @@ from django.db.models import Count, Q
 from django.db.utils import OperationalError, ProgrammingError
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import CreateView, TemplateView
 
+from .forms import CategoryForm, NoteForm, PriorityForm, SubTaskForm, TaskForm
 from .models import Category, Note, Priority, SubTask, Task
 
 STATUS_ORDER = [
@@ -116,11 +117,11 @@ class PlannerLoginView(LoginView):
         return context
 
 
-class PlannerBaseView(LoginRequiredMixin, TemplateView):
+class PlannerShellMixin(LoginRequiredMixin):
     active_page = ""
     page_title = ""
     primary_action_label = "New Task"
-    primary_action_url = reverse_lazy("admin:planner_task_add")
+    primary_action_url = reverse_lazy("planner:task-create")
     login_url = reverse_lazy("planner:login")
 
     def build_shell_context(self):
@@ -149,10 +150,37 @@ class PlannerBaseView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class PlannerBaseView(PlannerShellMixin, TemplateView):
+    pass
+
+
+class PlannerCreateView(PlannerShellMixin, CreateView):
+    template_name = "planner/form.html"
+    form_heading = ""
+    form_intro = ""
+    form_kicker = "Create"
+    submit_label = "Save"
+    cancel_url = reverse_lazy("planner:dashboard")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "form_heading": self.form_heading,
+                "form_intro": self.form_intro,
+                "form_kicker": self.form_kicker,
+                "submit_label": self.submit_label,
+                "cancel_url": self.cancel_url,
+            }
+        )
+        return context
+
+
 class DashboardView(PlannerBaseView):
     template_name = "planner/dashboard.html"
     active_page = "dashboard"
     page_title = "Dashboard"
+    primary_action_url = reverse_lazy("planner:task-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -229,6 +257,7 @@ class TaskBoardView(PlannerBaseView):
     active_page = "tasks"
     page_title = "Tasks"
     primary_action_label = "New Task"
+    primary_action_url = reverse_lazy("planner:task-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -278,7 +307,8 @@ class SubTaskListView(PlannerBaseView):
     template_name = "planner/subtasks.html"
     active_page = "subtasks"
     page_title = "Sub Tasks"
-    primary_action_label = "New Task"
+    primary_action_label = "New Sub Task"
+    primary_action_url = reverse_lazy("planner:subtask-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -327,7 +357,8 @@ class CategoryListView(PlannerBaseView):
     template_name = "planner/categories.html"
     active_page = "categories"
     page_title = "Categories"
-    primary_action_label = "New Task"
+    primary_action_label = "New Category"
+    primary_action_url = reverse_lazy("planner:category-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -359,7 +390,8 @@ class PriorityListView(PlannerBaseView):
     template_name = "planner/priorities.html"
     active_page = "priorities"
     page_title = "Priorities"
-    primary_action_label = "New Task"
+    primary_action_label = "New Priority"
+    primary_action_url = reverse_lazy("planner:priority-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -391,33 +423,57 @@ class NotesFeedView(PlannerBaseView):
     template_name = "planner/notes.html"
     active_page = "notes"
     page_title = "Notes"
-    primary_action_label = "New Task"
+    primary_action_label = "New Note"
+    primary_action_url = reverse_lazy("planner:note-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         query = context["search_query"]
-        notes = Note.objects.select_related(
-            "task", "task__category", "task__priority"
-        ).order_by("-updated_at", "-created_at")
+        notes = Note.objects.select_related("task").order_by("-created_at")
         if query:
-            notes = notes.filter(
-                Q(content__icontains=query) | Q(task__title__icontains=query)
-            )
-
+            notes = notes.filter(Q(content__icontains=query) | Q(task__title__icontains=query))
+        
         page_obj = paginate(self.request, notes, per_page=8)
-        context.update(
-            {
-                "summary_cards": [
-                    {"label": "Notes", "value": notes.count()},
-                    {
-                        "label": "Tasks With Notes",
-                        "value": Task.objects.annotate(note_total=Count("notes"))
-                        .filter(note_total__gt=0)
-                        .count(),
-                    },
-                ],
-                "page_obj": page_obj,
-                "notes": page_obj.object_list,
-            }
-        )
+        context.update({
+            "summary_cards": [
+                {"label": "Total Notes", "value": notes.count()},
+            ],
+            "page_obj": page_obj,
+            "notes": page_obj.object_list,
+        })
         return context
+
+
+class TaskCreateView(PlannerCreateView):
+    model = Task
+    form_class = TaskForm
+    form_heading = "Create Task"
+    success_url = reverse_lazy("planner:tasks")
+
+
+class SubTaskCreateView(PlannerCreateView):
+    model = SubTask
+    form_class = SubTaskForm
+    form_heading = "Create Sub Task"
+    success_url = reverse_lazy("planner:subtasks")
+
+
+class CategoryCreateView(PlannerCreateView):
+    model = Category
+    form_class = CategoryForm
+    form_heading = "Create Category"
+    success_url = reverse_lazy("planner:categories")
+
+
+class PriorityCreateView(PlannerCreateView):
+    model = Priority
+    form_class = PriorityForm
+    form_heading = "Create Priority"
+    success_url = reverse_lazy("planner:priorities")
+
+
+class NoteCreateView(PlannerCreateView):
+    model = Note
+    form_class = NoteForm
+    form_heading = "Create Note"
+    success_url = reverse_lazy("planner:notes")
